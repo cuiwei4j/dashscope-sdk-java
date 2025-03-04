@@ -2,8 +2,8 @@
 
 package com.alibaba.dashscope.protocol;
 
-import io.reactivex.Observable;
-import io.reactivex.functions.Function;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.functions.Function;
 import java.util.concurrent.TimeUnit;
 
 public class RetryWithDelay implements Function<Observable<? extends Throwable>, Observable<?>> {

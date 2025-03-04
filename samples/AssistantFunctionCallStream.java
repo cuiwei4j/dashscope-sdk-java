@@ -40,7 +40,7 @@ import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
 import com.github.victools.jsonschema.generator.SchemaVersion;
 import com.github.victools.jsonschema.generator.TypeScope;
 import com.github.victools.jsonschema.generator.MemberScope;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 import com.alibaba.dashscope.tools.ToolCallFunction;
 
 public class AssistantFunctionCallStream {

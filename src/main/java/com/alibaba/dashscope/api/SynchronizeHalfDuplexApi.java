@@ -12,7 +12,7 @@ import com.alibaba.dashscope.protocol.ConnectionOptions;
 import com.alibaba.dashscope.protocol.HalfDuplexClient;
 import com.alibaba.dashscope.protocol.HalfDuplexRequest;
 import com.alibaba.dashscope.protocol.ServiceOption;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 
 /** Dashscope synchronize half duplex request processing, both http and websocket support. */
 public final class SynchronizeHalfDuplexApi<ParamT extends HalfDuplexParamBase> {

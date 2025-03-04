@@ -14,9 +14,9 @@ import com.alibaba.dashscope.audio.asr.recognition.RecognitionParam;
 import com.alibaba.dashscope.audio.asr.recognition.RecognitionResult;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import io.reactivex.schedulers.Schedulers;
+import io.reactivex.rxjava3.core.BackpressureStrategy;
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public final class AudioRecognitionUsage {
   private final AudioFormat format = buildAudioFormatInstance();

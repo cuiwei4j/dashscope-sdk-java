@@ -1,7 +1,7 @@
 import com.alibaba.dashscope.assistants.Assistant;
 import com.alibaba.dashscope.assistants.AssistantParam;
 import com.alibaba.dashscope.tools.search.ToolQuarkSearch;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 import com.alibaba.dashscope.assistants.Assistants;
 import com.alibaba.dashscope.common.GeneralListParam;
 import com.alibaba.dashscope.common.ListResult;

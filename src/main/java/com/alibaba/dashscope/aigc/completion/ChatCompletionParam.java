@@ -7,7 +7,7 @@ import com.alibaba.dashscope.tools.ToolBase;
 import com.alibaba.dashscope.utils.JsonUtils;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
-import io.reactivex.annotations.NonNull;
+import io.reactivex.rxjava3.annotations.NonNull;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;

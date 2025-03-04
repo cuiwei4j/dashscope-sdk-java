@@ -13,7 +13,7 @@ import com.alibaba.dashscope.base.HalfDuplexServiceParam;
 import com.alibaba.dashscope.utils.ApiKeywords;
 import com.alibaba.dashscope.utils.JsonUtils;
 import com.google.gson.JsonObject;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;

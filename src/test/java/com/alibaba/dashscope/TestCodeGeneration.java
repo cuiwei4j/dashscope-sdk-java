@@ -16,7 +16,7 @@ import com.alibaba.dashscope.utils.Constants;
 import com.alibaba.dashscope.utils.JsonUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

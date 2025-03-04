@@ -16,7 +16,7 @@ import com.alibaba.dashscope.protocol.StreamingMode;
 import com.alibaba.dashscope.utils.Constants;
 import com.alibaba.dashscope.utils.JsonUtils;
 import com.google.gson.JsonObject;
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Observable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;

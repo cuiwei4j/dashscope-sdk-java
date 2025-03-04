@@ -3,7 +3,7 @@ package com.alibaba.dashscope.audio.ttsv2;
 import com.alibaba.dashscope.audio.tts.SpeechSynthesisApiKeywords;
 import com.alibaba.dashscope.audio.tts.SpeechSynthesisTextType;
 import com.alibaba.dashscope.base.FullDuplexServiceParam;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Builder;

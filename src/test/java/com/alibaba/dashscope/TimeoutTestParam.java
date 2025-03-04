@@ -3,7 +3,7 @@ package com.alibaba.dashscope;
 import com.alibaba.dashscope.base.FlattenHalfDuplexParamBase;
 import com.alibaba.dashscope.utils.ApiKeywords;
 import com.google.gson.JsonObject;
-import io.reactivex.annotations.NonNull;
+import io.reactivex.rxjava3.annotations.NonNull;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

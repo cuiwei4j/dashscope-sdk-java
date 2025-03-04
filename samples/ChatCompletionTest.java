@@ -27,7 +27,7 @@ import com.github.victools.jsonschema.generator.SchemaGenerator;
 import com.github.victools.jsonschema.generator.SchemaGeneratorConfig;
 import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
 import com.github.victools.jsonschema.generator.SchemaVersion;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 
 public class ChatCompletionTest {
     public class GetCurrentWeather {

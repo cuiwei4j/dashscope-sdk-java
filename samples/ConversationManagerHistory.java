@@ -9,7 +9,7 @@ import com.alibaba.dashscope.common.History;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 
 public class ConversationManagerHistory {
     @Deprecated

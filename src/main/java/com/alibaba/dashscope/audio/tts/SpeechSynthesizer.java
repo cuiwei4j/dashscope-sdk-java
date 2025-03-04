@@ -10,7 +10,7 @@ import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.protocol.ApiServiceOption;
 import com.alibaba.dashscope.protocol.Protocol;
 import com.alibaba.dashscope.protocol.StreamingMode;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;

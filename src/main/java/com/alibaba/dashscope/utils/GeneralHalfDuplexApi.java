@@ -17,7 +17,7 @@ import com.alibaba.dashscope.protocol.ConnectionOptions;
 import com.alibaba.dashscope.protocol.HttpMethod;
 import com.alibaba.dashscope.protocol.Protocol;
 import com.alibaba.dashscope.protocol.StreamingMode;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

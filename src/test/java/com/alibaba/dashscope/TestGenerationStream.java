@@ -11,7 +11,7 @@ import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.utils.Constants;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

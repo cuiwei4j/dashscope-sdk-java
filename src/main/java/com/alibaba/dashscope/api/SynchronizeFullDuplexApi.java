@@ -12,7 +12,7 @@ import com.alibaba.dashscope.protocol.ClientProviders;
 import com.alibaba.dashscope.protocol.ConnectionOptions;
 import com.alibaba.dashscope.protocol.FullDuplexClient;
 import com.alibaba.dashscope.protocol.FullDuplexRequest;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 
 /** DashScope synchronize full duplex request processing, only websocket support. */
 public final class SynchronizeFullDuplexApi<ParamT extends FullDuplexServiceParam> {

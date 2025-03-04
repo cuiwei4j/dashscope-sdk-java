@@ -12,7 +12,7 @@ import com.alibaba.dashscope.protocol.Protocol;
 import com.alibaba.dashscope.utils.EncryptionKey;
 import com.alibaba.dashscope.utils.EncryptionKeys;
 import com.alibaba.dashscope.utils.JsonUtils;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 
 public class TestEncryption {
     public static void qwenQuickStartStream()

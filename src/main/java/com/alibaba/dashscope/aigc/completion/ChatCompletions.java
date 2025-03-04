@@ -12,7 +12,7 @@ import com.alibaba.dashscope.protocol.GeneralServiceOption;
 import com.alibaba.dashscope.protocol.HttpMethod;
 import com.alibaba.dashscope.protocol.Protocol;
 import com.alibaba.dashscope.protocol.StreamingMode;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 
 /** Support openai compatible api, for test usage. */
 public final class ChatCompletions {

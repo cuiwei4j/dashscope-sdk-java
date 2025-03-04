@@ -6,9 +6,9 @@ import com.alibaba.dashscope.threads.runs.AssistantEventHandler;
 import com.alibaba.dashscope.threads.runs.LastError;
 import com.alibaba.dashscope.threads.runs.Run;
 import com.alibaba.dashscope.threads.runs.RunStep;
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import io.reactivex.FlowableEmitter;
+import io.reactivex.rxjava3.core.BackpressureStrategy;
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.FlowableEmitter;
 import lombok.Data;
 
 /**

@@ -4,7 +4,7 @@ package com.alibaba.dashscope;
 
 import com.alibaba.dashscope.base.FullDuplexServiceParam;
 import com.google.gson.annotations.SerializedName;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;

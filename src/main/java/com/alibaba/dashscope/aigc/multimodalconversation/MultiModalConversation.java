@@ -9,7 +9,7 @@ import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.exception.UploadFileException;
 import com.alibaba.dashscope.protocol.*;
 import com.alibaba.dashscope.utils.PreprocessMessageInput;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

@@ -6,7 +6,7 @@ import com.alibaba.dashscope.common.DashScopeResult;
 import com.alibaba.dashscope.common.ResultCallback;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 
 public interface FullDuplexClient {
   /*

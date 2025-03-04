@@ -34,7 +34,7 @@ import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
 import com.github.victools.jsonschema.generator.SchemaVersion;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
