@@ -18,7 +18,7 @@
         </license>
     </licenses>
 
-    <!--<distributionManagement>
+    <distributionManagement>
         <snapshotRepository>
             <id>oss</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
@@ -27,7 +27,7 @@
             <id>oss</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
-    </distributionManagement>-->
+    </distributionManagement>
 
     <developers>
         <developer>
@@ -43,11 +43,12 @@
     <version>2.18.3</version>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <java.version>8</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven-antrun.version>21</maven-antrun.version>
-        <commons-lang3.version>3.11</commons-lang3.version>
+        <maven-antrun.version>${java.version}</maven-antrun.version>
+        <commons-lang3.version>3.17.0</commons-lang3.version>
     </properties>
     <dependencies>
         <dependency>
@@ -155,8 +156,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
             <plugin>
