@@ -103,6 +103,8 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
   /** audio output parameters */
   private AudioParameters audio;
 
+  private OcrOptions ocrOptions;
+
   @Override
   public JsonObject getHttpBody() {
     JsonObject requestObject = new JsonObject();
@@ -169,6 +171,10 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
 
     if (audio != null) {
       params.put(ApiKeywords.AUDIO, audio);
+    }
+
+    if (ocrOptions != null) {
+      params.put(ApiKeywords.OCR_OPTIONS, ocrOptions);
     }
 
     params.putAll(parameters);
