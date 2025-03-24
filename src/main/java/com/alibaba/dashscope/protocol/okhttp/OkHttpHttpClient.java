@@ -18,11 +18,12 @@ import com.alibaba.dashscope.protocol.Protocol;
 import com.alibaba.dashscope.utils.ApiKeywords;
 import com.alibaba.dashscope.utils.JsonUtils;
 import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.util.Map;
+
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.FlowableEmitter;
-import java.io.IOException;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -38,12 +39,13 @@ import okhttp3.ResponseBody;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
+import org.jetbrains.annotations.NotNull;
 
 @Slf4j
 public final class OkHttpHttpClient implements HalfDuplexClient {
   private final OkHttpClient client;
   private static final MediaType MEDIA_TYPE_APPLICATION_JSON =
-      MediaType.parse("application/json; charset=utf-8");
+          MediaType.parse("application/json; charset=utf-8");
 
   private Status parseStreamEventData(String data) {
     try {
@@ -61,19 +63,19 @@ public final class OkHttpHttpClient implements HalfDuplexClient {
         message = jsonResponse.get(ApiKeywords.MESSAGE).getAsString();
       }
       return Status.builder()
-          .statusCode(400)
-          .code(code)
-          .message(message)
-          .requestId(requestId)
-          .isJson(true)
-          .build();
+              .statusCode(400)
+              .code(code)
+              .message(message)
+              .requestId(requestId)
+              .isJson(true)
+              .build();
     } catch (Throwable e) {
       return Status.builder()
-          .statusCode(400)
-          .code(ErrorType.RESPONSE_ERROR.getValue())
-          .message(data)
-          .isJson(false)
-          .build();
+              .statusCode(400)
+              .code(ErrorType.RESPONSE_ERROR.getValue())
+              .message(data)
+              .isJson(false)
+              .build();
     }
   }
 
@@ -93,30 +95,32 @@ public final class OkHttpHttpClient implements HalfDuplexClient {
         message = jsonResponse.get(ApiKeywords.MESSAGE).getAsString();
       }
       return Status.builder()
-          .statusCode(statusCode)
-          .code(code)
-          .message(message)
-          .requestId(requestId)
-          .isJson(true)
-          .build();
+              .statusCode(statusCode)
+              .code(code)
+              .message(message)
+              .requestId(requestId)
+              .isJson(true)
+              .build();
     } catch (Throwable e) {
       return Status.builder()
-          .statusCode(statusCode)
-          .code(ErrorType.RESPONSE_ERROR.getValue())
-          .message(body)
-          .isJson(true)
-          .build();
+              .statusCode(statusCode)
+              .code(ErrorType.RESPONSE_ERROR.getValue())
+              .message(body)
+              .isJson(true)
+              .build();
     }
   }
 
-  private Status parseFailed(Response response) {
+  private Status parseFailed(Response response, Throwable th) {
     if (response == null) {
+      String message = th == null ? "Get response failed!" : th.getMessage();
+
       return Status.builder()
-          .statusCode(-1)
-          .code(ErrorType.NETORK_ERROR.getValue())
-          .message("Get response failed!")
-          .isJson(false)
-          .build();
+              .statusCode(-1)
+              .code(ErrorType.NETWORK_ERROR.getValue())
+              .message(message)
+              .isJson(false)
+              .build();
     }
     String contentType = response.header("Content-Type");
     // process http failed.
@@ -126,11 +130,11 @@ public final class OkHttpHttpClient implements HalfDuplexClient {
         body = response.body().string();
       } catch (IOException e) {
         return Status.builder()
-            .statusCode(response.code())
-            .code(ErrorType.RESPONSE_ERROR.getValue())
-            .message("Failed read response body: " + e.getMessage())
-            .isJson(true)
-            .build();
+                .statusCode(response.code())
+                .code(ErrorType.RESPONSE_ERROR.getValue())
+                .message("Failed read response body: " + e.getMessage())
+                .isJson(true)
+                .build();
       }
       return parseFailedJson(response.code(), body);
     } else if (contentType != null && contentType.toLowerCase().contains("text/event-stream")) {
@@ -144,26 +148,26 @@ public final class OkHttpHttpClient implements HalfDuplexClient {
           }
         }
         return Status.builder()
-            .statusCode(response.code())
-            .code(ErrorType.RESPONSE_ERROR.getValue())
-            .message(body)
-            .isJson(false)
-            .build();
+                .statusCode(response.code())
+                .code(ErrorType.RESPONSE_ERROR.getValue())
+                .message(body)
+                .isJson(false)
+                .build();
       } catch (IOException e) {
         return Status.builder()
-            .statusCode(response.code())
-            .code(ErrorType.RESPONSE_ERROR.getValue())
-            .message("Failed read response body: " + e.getMessage())
-            .isJson(true)
-            .build();
+                .statusCode(response.code())
+                .code(ErrorType.RESPONSE_ERROR.getValue())
+                .message("Failed read response body: " + e.getMessage())
+                .isJson(true)
+                .build();
       }
     } else {
       return Status.builder()
-          .statusCode(response.code())
-          .code(ErrorType.RESPONSE_ERROR.getValue())
-          .message(response.message())
-          .isJson(false)
-          .build();
+              .statusCode(response.code())
+              .code(ErrorType.RESPONSE_ERROR.getValue())
+              .message(response.message())
+              .isJson(false)
+              .build();
     }
   }
 
@@ -172,7 +176,7 @@ public final class OkHttpHttpClient implements HalfDuplexClient {
   }
 
   private <T extends HalfDuplexParamBase> Request buildRequest(HttpRequest req)
-      throws NoApiKeyException, ApiException {
+          throws NoApiKeyException, ApiException {
     Request request = null;
     if (req.getHttpMethod() == HttpMethod.GET) {
       HttpUrl.Builder httpBuilder = HttpUrl.parse(req.getUrl()).newBuilder();
@@ -184,10 +188,10 @@ public final class OkHttpHttpClient implements HalfDuplexClient {
         }
       }
       request =
-          new Request.Builder()
-              .url(httpBuilder.build())
-              .headers(Headers.of(req.getHeaders()))
-              .build();
+              new Request.Builder()
+                      .url(httpBuilder.build())
+                      .headers(Headers.of(req.getHeaders()))
+                      .build();
     } else if (req.getHttpMethod() == HttpMethod.POST) {
       Builder requestBuilder = new Request.Builder();
       requestBuilder.url(req.getUrl()).headers(Headers.of(req.getHeaders()));
@@ -195,7 +199,7 @@ public final class OkHttpHttpClient implements HalfDuplexClient {
         // compatible with okhttp3.x
         // RequestBody.create((String) (req.getBody()), MEDIA_TYPE_APPLICATION_JSON));
         requestBuilder.post(
-            RequestBody.create(MEDIA_TYPE_APPLICATION_JSON, (String) (req.getBody())));
+                RequestBody.create(MEDIA_TYPE_APPLICATION_JSON, (String) (req.getBody())));
       } else {
         requestBuilder.post(RequestBody.create(MEDIA_TYPE_APPLICATION_JSON, ""));
       }
@@ -205,19 +209,19 @@ public final class OkHttpHttpClient implements HalfDuplexClient {
       requestBuilder.url(req.getUrl()).headers(Headers.of(req.getHeaders()));
       if (req.getBody() != null) {
         requestBuilder.delete(
-            // RequestBody.create((String) (req.getBody()), MEDIA_TYPE_APPLICATION_JSON));
-            RequestBody.create(MEDIA_TYPE_APPLICATION_JSON, (String) req.getBody()));
+                // RequestBody.create((String) (req.getBody()), MEDIA_TYPE_APPLICATION_JSON));
+                RequestBody.create(MEDIA_TYPE_APPLICATION_JSON, (String) req.getBody()));
       } else {
         requestBuilder.delete();
       }
       request = requestBuilder.build();
     } else {
       Status status =
-          Status.builder()
-              .statusCode(400)
-              .code("BadRequest")
-              .message(String.format("Unsupported method: %s", req.getHttpMethod()))
-              .build();
+              Status.builder()
+                      .statusCode(400)
+                      .code("BadRequest")
+                      .message(String.format("Unsupported method: %s", req.getHttpMethod()))
+                      .build();
       throw new ApiException(status);
     }
     return request;
@@ -232,18 +236,18 @@ public final class OkHttpHttpClient implements HalfDuplexClient {
       Request request = buildRequest(req.getHttpRequest());
       Response response = client.newCall(request).execute();
       if (!response.isSuccessful()) {
-        Status status = parseFailed(response);
+        Status status = parseFailed(response, null);
         throw new ApiException(status);
       }
       return new DashScopeResult()
-          .fromResponse(
-              Protocol.HTTP,
-              NetworkResponse.builder()
-                  .headers(response.headers().toMultimap())
-                  .message(response.body().string())
-                  .build(),
-              req.getIsFlatten(),
-              req);
+              .fromResponse(
+                      Protocol.HTTP,
+                      NetworkResponse.builder()
+                              .headers(response.headers().toMultimap())
+                              .message(response.body().string())
+                              .build(),
+                      req.getIsFlatten(),
+                      req);
     } catch (Throwable e) {
       throw new ApiException(e);
     }
@@ -251,143 +255,146 @@ public final class OkHttpHttpClient implements HalfDuplexClient {
 
   @Override
   public void send(HalfDuplexRequest req, ResultCallback<DashScopeResult> callback)
-      throws NoApiKeyException, ApiException {
+          throws NoApiKeyException, ApiException {
     Request request = buildRequest(req.getHttpRequest());
     client
-        .newCall(request)
-        .enqueue(
-            new Callback() {
-              @Override
-              public void onFailure(Call call, IOException e) {
-                callback.onError(e);
-              }
+            .newCall(request)
+            .enqueue(
+                    new Callback() {
+                      @Override
+                      public void onFailure(Call call, IOException e) {
+                        callback.onError(e);
+                      }
 
-              @Override
-              public void onResponse(Call call, Response response) throws IOException {
-                try (ResponseBody responseBody = response.body()) {
-                  if (!response.isSuccessful()) {
-                    Status status = parseFailed(response);
-                    callback.onError(new ApiException(status));
-                  } else {
-                    callback.onEvent(
-                        new DashScopeResult()
-                            .fromResponse(
-                                Protocol.HTTP,
-                                NetworkResponse.builder()
-                                    .headers(response.headers().toMultimap())
-                                    .message(response.body().string())
-                                    .build(),
-                                req.getIsFlatten(),
-                                req));
-                    callback.onComplete();
-                  }
-                }
-              }
-            });
+                      @Override
+                      public void onResponse(Call call, Response response) throws IOException {
+                        try (ResponseBody responseBody = response.body()) {
+                          if (!response.isSuccessful()) {
+                            Status status = parseFailed(response, null);
+                            callback.onError(new ApiException(status));
+                          } else {
+                            callback.onEvent(
+                                    new DashScopeResult()
+                                            .fromResponse(
+                                                    Protocol.HTTP,
+                                                    NetworkResponse.builder()
+                                                            .headers(response.headers().toMultimap())
+                                                            .message(response.body().string())
+                                                            .build(),
+                                                    req.getIsFlatten(),
+                                                    req));
+                            callback.onComplete();
+                          }
+                        }
+                      }
+                    });
   }
 
   private void handleSSEEvent(
-      FlowableEmitter<DashScopeResult> emitter,
-      String id,
-      String eventType,
-      String data,
-      boolean isFlattenResult,
-      Response response,
-      HalfDuplexRequest req) {
+          FlowableEmitter<DashScopeResult> emitter,
+          String id,
+          String eventType,
+          String data,
+          boolean isFlattenResult,
+          Response response,
+          HalfDuplexRequest req) {
     log.debug(String.format("Event: id %s, type: %s, data: %s", id, eventType, data));
     if (SSEEventType.ERROR.equals(eventType)) {
       Status st = parseStreamEventData(data);
       emitter.onError(new ApiException(st));
     } else if (SSEEventType.DATA.equals(eventType) || SSEEventType.RESULT.equals(eventType)) {
       emitter.onNext(
-          new DashScopeResult()
-              .fromResponse(
-                  Protocol.HTTP,
-                  NetworkResponse.builder()
-                      .headers(response.headers().toMultimap())
-                      .message(data)
-                      .event(eventType)
-                      .build(),
-                  isFlattenResult,
-                  req));
+              new DashScopeResult()
+                      .fromResponse(
+                              Protocol.HTTP,
+                              NetworkResponse.builder()
+                                      .headers(response.headers().toMultimap())
+                                      .message(data)
+                                      .event(eventType)
+                                      .build(),
+                              isFlattenResult,
+                              req));
     } else if (SSEEventType.DONE.equals(eventType)) { // event done ignore message
       log.debug(String.format("Ignore event id: %s, type: %s, data: %s", id, eventType, data));
     } else if (eventType != null) {
       // process assistant events.
       emitter.onNext(
-          new DashScopeResult()
-              .fromResponse(
-                  Protocol.HTTP,
-                  NetworkResponse.builder()
-                      .headers(response.headers().toMultimap())
-                      .message(data)
-                      .event(eventType)
-                      .build(),
-                  isFlattenResult,
-                  req));
+              new DashScopeResult()
+                      .fromResponse(
+                              Protocol.HTTP,
+                              NetworkResponse.builder()
+                                      .headers(response.headers().toMultimap())
+                                      .message(data)
+                                      .event(eventType)
+                                      .build(),
+                              isFlattenResult,
+                              req));
     } else if (eventType == null) {
       if (data.equals("[DONE]")) {
         emitter.onComplete();
         return;
       }
       emitter.onNext(
-          new DashScopeResult()
-              .fromResponse(
-                  Protocol.HTTP,
-                  NetworkResponse.builder()
-                      .headers(response.headers().toMultimap())
-                      .message(data)
-                      .build(),
-                  isFlattenResult,
-                  req));
+              new DashScopeResult()
+                      .fromResponse(
+                              Protocol.HTTP,
+                              NetworkResponse.builder()
+                                      .headers(response.headers().toMultimap())
+                                      .message(data)
+                                      .build(),
+                              isFlattenResult,
+                              req));
     }
   }
 
   @Override
   public Flowable<DashScopeResult> streamOut(HalfDuplexRequest req)
-      throws NoApiKeyException, ApiException {
+          throws NoApiKeyException, ApiException {
     Flowable<DashScopeResult> flowable =
-        Flowable.<DashScopeResult>create(
-            emitter -> {
-              Request request = buildRequest(req.getHttpRequest());
-              EventSources.createFactory(client)
-                  .newEventSource(
-                      request,
-                      new EventSourceListener() {
-                        private Response response;
+            Flowable.<DashScopeResult>create(
+                    emitter -> {
+                      Request request = buildRequest(req.getHttpRequest());
+                      EventSources.createFactory(client)
+                              .newEventSource(
+                                      request,
+                                      new EventSourceListener() {
+                                        private Response response;
 
-                        @java.lang.Override
-                        public void onEvent(
-                            EventSource eventSource,
-                            java.lang.String id,
-                            java.lang.String type,
-                            java.lang.String data) {
-                          handleSSEEvent(
-                              emitter, id, type, data, req.getIsFlatten(), response, req);
-                        }
+                                        @java.lang.Override
+                                        public void onEvent(
+                                                EventSource eventSource,
+                                                java.lang.String id,
+                                                java.lang.String type,
+                                                java.lang.String data) {
+                                          handleSSEEvent(
+                                                  emitter, id, type, data, req.getIsFlatten(), response, req);
+                                        }
 
-                        @java.lang.Override
-                        public void onOpen(EventSource eventSource, Response response) {
-                          this.response = response;
-                          super.onOpen(eventSource, response);
-                        }
+                                        @java.lang.Override
+                                        public void onOpen(
+                                                @NotNull EventSource eventSource, @NotNull Response response) {
+                                          this.response = response;
+                                          super.onOpen(eventSource, response);
+                                        }
 
-                        @java.lang.Override
-                        public void onFailure(
-                            EventSource eventSource, java.lang.Throwable t, Response response) {
-                          this.response = response;
-                          super.onFailure(eventSource, t, response);
-                          emitter.onError(new ApiException(parseFailed(response)));
-                        }
+                                        @java.lang.Override
+                                        public void onFailure(
+                                                @NotNull EventSource eventSource,
+                                                java.lang.Throwable t,
+                                                Response response) {
+                                          this.response = response;
+                                          super.onFailure(eventSource, t, response);
+                                          emitter.onError(new ApiException(parseFailed(response, t), t));
+                                        }
 
-                        @java.lang.Override
-                        public void onClosed(EventSource eventSource) {
-                          super.onClosed(eventSource);
-                          emitter.onComplete();
-                        }
-                      });
-            },
-            BackpressureStrategy.BUFFER);
+                                        @java.lang.Override
+                                        public void onClosed(@NotNull EventSource eventSource) {
+                                          super.onClosed(eventSource);
+                                          emitter.onComplete();
+                                        }
+                                      });
+                    },
+                    BackpressureStrategy.BUFFER);
     return flowable;
   }
 
@@ -400,80 +407,80 @@ public final class OkHttpHttpClient implements HalfDuplexClient {
 
   @Override
   public void streamOut(HalfDuplexRequest req, ResultCallback<DashScopeResult> callback)
-      throws NoApiKeyException, ApiException {
+          throws NoApiKeyException, ApiException {
     Request request = buildRequest(req.getHttpRequest());
     EventSources.createFactory(client)
-        .newEventSource(
-            request,
-            new EventSourceListener() {
-              private Response response;
+            .newEventSource(
+                    request,
+                    new EventSourceListener() {
+                      private Response response;
 
-              @java.lang.Override
-              public void onEvent(
-                  EventSource eventSource,
-                  java.lang.String id,
-                  java.lang.String type,
-                  java.lang.String data) {
-                log.debug(String.format("Event: id %s, type: %s, data: %s", id, type, data));
-                if (SSEEventType.ERROR.equals(type)) {
-                  Status st = parseStreamEventData(data);
-                  callback.onError(new ApiException(st));
-                } else if (SSEEventType.DATA.equals(type) || SSEEventType.RESULT.equals(type)) {
-                  callback.onEvent(
-                      new DashScopeResult()
-                          .fromResponse(
-                              Protocol.HTTP,
-                              NetworkResponse.builder()
-                                  .headers(response.headers().toMultimap())
-                                  .message(data)
-                                  .event(type)
-                                  .build(),
-                              req.getIsFlatten(),
-                              req));
-                } else if (type != null) {
-                  callback.onEvent(
-                      new DashScopeResult()
-                          .fromResponse(
-                              Protocol.HTTP,
-                              NetworkResponse.builder()
-                                  .headers(response.headers().toMultimap())
-                                  .message(data)
-                                  .event(type)
-                                  .build(),
-                              req.getIsFlatten(),
-                              req));
-                } else if (type == null) {
-                  callback.onEvent(
-                      new DashScopeResult()
-                          .fromResponse(
-                              Protocol.HTTP,
-                              NetworkResponse.builder()
-                                  .headers(response.headers().toMultimap())
-                                  .message(data)
-                                  .build(),
-                              req.getIsFlatten(),
-                              req));
-                }
-              }
+                      @java.lang.Override
+                      public void onEvent(
+                              EventSource eventSource,
+                              java.lang.String id,
+                              java.lang.String type,
+                              java.lang.String data) {
+                        log.debug(String.format("Event: id %s, type: %s, data: %s", id, type, data));
+                        if (SSEEventType.ERROR.equals(type)) {
+                          Status st = parseStreamEventData(data);
+                          callback.onError(new ApiException(st));
+                        } else if (SSEEventType.DATA.equals(type) || SSEEventType.RESULT.equals(type)) {
+                          callback.onEvent(
+                                  new DashScopeResult()
+                                          .fromResponse(
+                                                  Protocol.HTTP,
+                                                  NetworkResponse.builder()
+                                                          .headers(response.headers().toMultimap())
+                                                          .message(data)
+                                                          .event(type)
+                                                          .build(),
+                                                  req.getIsFlatten(),
+                                                  req));
+                        } else if (type != null) {
+                          callback.onEvent(
+                                  new DashScopeResult()
+                                          .fromResponse(
+                                                  Protocol.HTTP,
+                                                  NetworkResponse.builder()
+                                                          .headers(response.headers().toMultimap())
+                                                          .message(data)
+                                                          .event(type)
+                                                          .build(),
+                                                  req.getIsFlatten(),
+                                                  req));
+                        } else if (type == null) {
+                          callback.onEvent(
+                                  new DashScopeResult()
+                                          .fromResponse(
+                                                  Protocol.HTTP,
+                                                  NetworkResponse.builder()
+                                                          .headers(response.headers().toMultimap())
+                                                          .message(data)
+                                                          .build(),
+                                                  req.getIsFlatten(),
+                                                  req));
+                        }
+                      }
 
-              @java.lang.Override
-              public void onOpen(EventSource eventSource, Response response) {
-                this.response = response;
-                callback.onOpen(null);
-              }
+                      @java.lang.Override
+                      public void onOpen(@NotNull EventSource eventSource, @NotNull Response response) {
+                        this.response = response;
+                        callback.onOpen(null);
+                      }
 
-              @java.lang.Override
-              public void onFailure(
-                  EventSource eventSource, java.lang.Throwable t, Response response) {
-                this.response = response;
-                callback.onError(new ApiException(parseFailed(response)));
-              }
+                      @java.lang.Override
+                      public void onFailure(
+                              @NotNull EventSource eventSource, java.lang.Throwable t, Response response) {
+                        this.response = response;
+                        callback.onError(new ApiException(parseFailed(response, t), t));
+                      }
 
-              @java.lang.Override
-              public void onClosed(EventSource eventSource) {
-                callback.onComplete();
-              }
-            });
+                      @java.lang.Override
+                      public void onClosed(EventSource eventSource) {
+                        callback.onComplete();
+                      }
+                    });
   }
 
   @Override

@@ -1,22 +1,22 @@
 // Copyright (c) Alibaba, Inc. and its affiliates.
 package com.alibaba.dashscope.aigc.videosynthesis;
 
-import static com.alibaba.dashscope.utils.ApiKeywords.*;
-
 import com.alibaba.dashscope.base.HalfDuplexServiceParam;
 import com.alibaba.dashscope.exception.InputRequiredException;
-import com.alibaba.dashscope.utils.Constants;
 import com.alibaba.dashscope.utils.GsonExclude;
 import com.alibaba.dashscope.utils.JsonUtils;
 import com.google.gson.JsonObject;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Singular;
 import lombok.experimental.SuperBuilder;
+
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.alibaba.dashscope.utils.ApiKeywords.*;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -29,7 +29,7 @@ public class VideoSynthesisParam extends HalfDuplexServiceParam {
 
   @Builder.Default private Integer seed = null;
 
-  @lombok.NonNull private String prompt;
+  @Builder.Default private String prompt = null;
 
   /** The negative prompt is the opposite of the prompt meaning. */
   @Builder.Default private String negative_prompt = null;
@@ -53,13 +53,10 @@ public class VideoSynthesisParam extends HalfDuplexServiceParam {
   @Override
   public JsonObject getInput() {
     JsonObject jsonObject = new JsonObject();
-    prompt = prompt.trim();
-    int maxLength = Constants.MAX_PROMPT_LENGTH;
-    if (prompt.length() > maxLength) {
-      prompt = prompt.substring(0, maxLength);
+    if (prompt != null && !prompt.isEmpty()) {
+      jsonObject.addProperty(PROMPT, prompt);
     }
 
-    jsonObject.addProperty(PROMPT, prompt);
     jsonObject.addProperty(EXTEND_PROMPT, extendPrompt);
 
     if (negative_prompt != null && !negative_prompt.isEmpty()) {

@@ -23,6 +23,9 @@ public class VoiceEnrollmentParam extends HalfDuplexServiceParam {
   private int pageIndex;
   private int pageSize;
 
+  /**
+   * @param b HalfDuplexServiceParam
+   */
   protected VoiceEnrollmentParam(HalfDuplexServiceParamBuilder<?, ?> b) {
     super(b);
   }

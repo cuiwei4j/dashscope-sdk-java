@@ -24,6 +24,9 @@ public class VocabularyParam extends HalfDuplexServiceParam {
   private int pageIndex;
   private int pageSize;
 
+  /**
+   * @param b HalfDuplexServiceParam
+   */
   protected VocabularyParam(HalfDuplexServiceParamBuilder<?, ?> b) {
     super(b);
   }
