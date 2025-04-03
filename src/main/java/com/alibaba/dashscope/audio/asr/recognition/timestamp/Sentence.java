@@ -30,6 +30,8 @@ public class Sentence {
   @SerializedName("emo_confidence")
   Double emoConfidence;
 
+  boolean heartbeat = false;
+
   @SerializedName("sentence_id")
   private Long sentenceId;
 

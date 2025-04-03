@@ -26,11 +26,9 @@ public final class VideoSynthesis {
 
   // Model name
   public static class Models {
-    public static final String WANX_TXT_TO_VIDEO_PRO = "wanx-txt2video-pro";
-    public static final String WANX_IMG_TO_VIDEO_PRO = "wanx-img2video-pro";
 
-    public static final String WANX_2_1_T2V_PLUS = "wanx2.1-t2v-plus";
-    public static final String WANX_2_1_T2V_TURBO = "wanx2.1-t2v-turbo";
+    @Deprecated public static final String WANX_TXT_TO_VIDEO_PRO = "wanx-txt2video-pro";
+    @Deprecated public static final String WANX_IMG_TO_VIDEO_PRO = "wanx-img2video-pro";;
 
     public static final String WANX_2_1_I2V_PLUS = "wanx2.1-i2v-plus";
     public static final String WANX_2_1_I2V_TURBO = "wanx2.1-i2v-turbo";
@@ -53,14 +51,14 @@ public final class VideoSynthesis {
    */
   private ApiServiceOption getApiServiceOption() {
     return ApiServiceOption.builder()
-        .protocol(Protocol.HTTP)
-        .httpMethod(HttpMethod.POST)
-        .streamingMode(StreamingMode.NONE)
-        .taskGroup(taskGroup)
-        .task(task)
-        .function(function)
-        .isAsyncTask(true)
-        .build();
+            .protocol(Protocol.HTTP)
+            .httpMethod(HttpMethod.POST)
+            .streamingMode(StreamingMode.NONE)
+            .taskGroup(taskGroup)
+            .task(task)
+            .function(function)
+            .isAsyncTask(true)
+            .build();
   }
 
   /** default VideoSynthesis constructor */
@@ -93,10 +91,10 @@ public final class VideoSynthesis {
    * @throws InputRequiredException Check the input param.
    */
   public VideoSynthesisResult asyncCall(VideoSynthesisParam param)
-      throws ApiException, NoApiKeyException, InputRequiredException {
+          throws ApiException, NoApiKeyException, InputRequiredException {
     param.validate();
     return VideoSynthesisResult.fromDashScopeResult(
-        asyncApi.asyncCall(param, createServiceOptions));
+            asyncApi.asyncCall(param, createServiceOptions));
   }
 
   /**
@@ -109,7 +107,7 @@ public final class VideoSynthesis {
    * @throws InputRequiredException Check the input param.
    */
   public VideoSynthesisResult call(VideoSynthesisParam param)
-      throws ApiException, NoApiKeyException, InputRequiredException {
+          throws ApiException, NoApiKeyException, InputRequiredException {
     param.validate();
     return VideoSynthesisResult.fromDashScopeResult(asyncApi.call(param, createServiceOptions));
   }
@@ -123,7 +121,7 @@ public final class VideoSynthesis {
    * @throws ApiException The request failed, possibly due to a network or data error.
    */
   public VideoSynthesisListResult list(AsyncTaskListParam param)
-      throws ApiException, NoApiKeyException {
+          throws ApiException, NoApiKeyException {
     return VideoSynthesisListResult.fromDashScopeResult(asyncApi.list(param, baseUrl));
   }
 
@@ -141,18 +139,18 @@ public final class VideoSynthesis {
    * @throws ApiException The request failed, possibly due to a network or data error.
    */
   public VideoSynthesisListResult list(
-      String startTime,
-      String endTime,
-      String modelName,
-      String apiKeyId,
-      String region,
-      String status,
-      Integer pageNo,
-      Integer pageSize)
-      throws ApiException, NoApiKeyException {
+          String startTime,
+          String endTime,
+          String modelName,
+          String apiKeyId,
+          String region,
+          String status,
+          Integer pageNo,
+          Integer pageSize)
+          throws ApiException, NoApiKeyException {
     return VideoSynthesisListResult.fromDashScopeResult(
-        asyncApi.list(
-            startTime, endTime, modelName, apiKeyId, region, status, pageNo, pageSize, baseUrl));
+            asyncApi.list(
+                    startTime, endTime, modelName, apiKeyId, region, status, pageNo, pageSize, baseUrl));
   }
 
   /**
@@ -165,7 +163,7 @@ public final class VideoSynthesis {
    * @throws ApiException The request failed, possibly due to a network or data error.
    */
   public VideoSynthesisResult fetch(String taskId, String apiKey)
-      throws ApiException, NoApiKeyException {
+          throws ApiException, NoApiKeyException {
     return VideoSynthesisResult.fromDashScopeResult(asyncApi.fetch(taskId, apiKey, baseUrl));
   }
 
@@ -179,9 +177,9 @@ public final class VideoSynthesis {
    * @throws ApiException The request failed, possibly due to a network or data error.
    */
   public VideoSynthesisResult fetch(VideoSynthesisResult taskInfo, String apiKey)
-      throws ApiException, NoApiKeyException {
+          throws ApiException, NoApiKeyException {
     return VideoSynthesisResult.fromDashScopeResult(
-        asyncApi.fetch(taskInfo.getOutput().getTaskId(), apiKey, baseUrl));
+            asyncApi.fetch(taskInfo.getOutput().getTaskId(), apiKey, baseUrl));
   }
 
   /**
@@ -194,7 +192,7 @@ public final class VideoSynthesis {
    * @throws ApiException The request failed, possibly due to a network or data error.
    */
   public VideoSynthesisResult cancel(String taskId, String apiKey)
-      throws ApiException, NoApiKeyException {
+          throws ApiException, NoApiKeyException {
     return VideoSynthesisResult.fromDashScopeResult(asyncApi.cancel(taskId, apiKey, baseUrl));
   }
 
@@ -208,7 +206,7 @@ public final class VideoSynthesis {
    * @throws ApiException The request failed, possibly due to a network or data error.
    */
   public VideoSynthesisResult cancel(VideoSynthesisResult taskInfo, String apiKey)
-      throws ApiException, NoApiKeyException {
+          throws ApiException, NoApiKeyException {
     DashScopeResult res = asyncApi.cancel(taskInfo.getOutput().getTaskId(), apiKey, baseUrl);
     return VideoSynthesisResult.fromDashScopeResult(res);
   }
@@ -223,7 +221,7 @@ public final class VideoSynthesis {
    * @throws ApiException The request failed, possibly due to a network or data error.
    */
   public VideoSynthesisResult wait(String taskId, String apiKey)
-      throws ApiException, NoApiKeyException {
+          throws ApiException, NoApiKeyException {
     return VideoSynthesisResult.fromDashScopeResult(asyncApi.wait(taskId, apiKey, baseUrl));
   }
 
@@ -237,8 +235,8 @@ public final class VideoSynthesis {
    * @throws ApiException The request failed, possibly due to a network or data error.
    */
   public VideoSynthesisResult wait(VideoSynthesisResult taskInfo, String apiKey)
-      throws ApiException, NoApiKeyException {
+          throws ApiException, NoApiKeyException {
     return VideoSynthesisResult.fromDashScopeResult(
-        asyncApi.wait(taskInfo.getOutput().getTaskId(), apiKey, baseUrl));
+            asyncApi.wait(taskInfo.getOutput().getTaskId(), apiKey, baseUrl));
   }
 }

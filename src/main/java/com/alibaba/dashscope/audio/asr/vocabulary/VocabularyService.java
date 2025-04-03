@@ -24,14 +24,14 @@ public class VocabularyService {
   public VocabularyService(String apikey) {
     this.apikey = apikey;
     createServiceOptions =
-        ApiServiceOption.builder()
-            .protocol(Protocol.HTTP)
-            .httpMethod(HttpMethod.POST)
-            .taskGroup("audio")
-            .task("asr")
-            .function("customization")
-            .isAsyncTask(false)
-            .build();
+            ApiServiceOption.builder()
+                    .protocol(Protocol.HTTP)
+                    .httpMethod(HttpMethod.POST)
+                    .taskGroup("audio")
+                    .task("asr")
+                    .function("customization")
+                    .isAsyncTask(false)
+                    .build();
     syncApi = new SynchronizeHalfDuplexApi<>(createServiceOptions);
     this.model = VOCABULARY_MODEL_NAME;
   }
@@ -39,14 +39,14 @@ public class VocabularyService {
   public VocabularyService(String apikey, String model) {
     this.apikey = apikey;
     createServiceOptions =
-        ApiServiceOption.builder()
-            .protocol(Protocol.HTTP)
-            .httpMethod(HttpMethod.POST)
-            .taskGroup("audio")
-            .task("asr")
-            .function("customization")
-            .isAsyncTask(false)
-            .build();
+            ApiServiceOption.builder()
+                    .protocol(Protocol.HTTP)
+                    .httpMethod(HttpMethod.POST)
+                    .taskGroup("audio")
+                    .task("asr")
+                    .function("customization")
+                    .isAsyncTask(false)
+                    .build();
     syncApi = new SynchronizeHalfDuplexApi<>(createServiceOptions);
     this.model = model;
   }
@@ -62,9 +62,9 @@ public class VocabularyService {
    * @throws InputRequiredException 如果必须参数为空
    */
   public Vocabulary createVocabulary(String targetModel, String prefix, JsonArray vocabulary)
-      throws NoApiKeyException, InputRequiredException {
+          throws NoApiKeyException, InputRequiredException {
     return createVocabulary(
-        targetModel, prefix, vocabulary, VocabularyParam.builder().model(this.model).build());
+            targetModel, prefix, vocabulary, VocabularyParam.builder().model(this.model).build());
   }
 
   /**
@@ -76,9 +76,9 @@ public class VocabularyService {
    * @throws InputRequiredException 如果必须参数为空
    */
   public Vocabulary[] listVocabulary(String prefix)
-      throws NoApiKeyException, InputRequiredException {
+          throws NoApiKeyException, InputRequiredException {
     return listVocabulary(
-        prefix, 0, 10, VocabularyParam.builder().model(VOCABULARY_MODEL_NAME).build());
+            prefix, 0, 10, VocabularyParam.builder().model(this.model).build());
   }
 
   /**
@@ -92,12 +92,12 @@ public class VocabularyService {
    * @throws InputRequiredException 如果必须参数为空
    */
   public Vocabulary[] listVocabulary(String prefix, int pageIndex, int pageSize)
-      throws NoApiKeyException, InputRequiredException {
+          throws NoApiKeyException, InputRequiredException {
     return listVocabulary(
-        prefix,
-        pageIndex,
-        pageSize,
-        VocabularyParam.builder().model(VOCABULARY_MODEL_NAME).build());
+            prefix,
+            pageIndex,
+            pageSize,
+            VocabularyParam.builder().model(this.model).build());
   }
 
   /**
@@ -109,9 +109,9 @@ public class VocabularyService {
    * @throws InputRequiredException 如果必须参数为空
    */
   public Vocabulary queryVocabulary(String vocabularyId)
-      throws NoApiKeyException, InputRequiredException {
+          throws NoApiKeyException, InputRequiredException {
     return queryVocabulary(
-        vocabularyId, VocabularyParam.builder().model(VOCABULARY_MODEL_NAME).build());
+            vocabularyId, VocabularyParam.builder().model(this.model).build());
   }
 
   /**
@@ -123,9 +123,9 @@ public class VocabularyService {
    * @throws InputRequiredException 如果必须参数为空
    */
   public void updateVocabulary(String vocabularyId, JsonArray vocabulary)
-      throws NoApiKeyException, InputRequiredException {
+          throws NoApiKeyException, InputRequiredException {
     updateVocabulary(
-        vocabularyId, vocabulary, VocabularyParam.builder().model(VOCABULARY_MODEL_NAME).build());
+            vocabularyId, vocabulary, VocabularyParam.builder().model(this.model).build());
   }
 
   /**
@@ -136,26 +136,26 @@ public class VocabularyService {
    * @throws InputRequiredException 如果必须参数为空
    */
   public void deleteVocabulary(String vocabularyId)
-      throws NoApiKeyException, InputRequiredException {
-    deleteVocabulary(vocabularyId, VocabularyParam.builder().model(VOCABULARY_MODEL_NAME).build());
+          throws NoApiKeyException, InputRequiredException {
+    deleteVocabulary(vocabularyId, VocabularyParam.builder().model(this.model).build());
   }
 
   public Vocabulary createVocabulary(
-      String targetModel, String prefix, JsonArray vocabulary, VocabularyParam customParam)
-      throws NoApiKeyException, InputRequiredException {
+          String targetModel, String prefix, JsonArray vocabulary, VocabularyParam customParam)
+          throws NoApiKeyException, InputRequiredException {
     VocabularyParam param =
-        VocabularyParam.builder()
-            .operationType(VocabularyOperationType.CREATE)
-            .model(VOCABULARY_MODEL_NAME)
-            .targetModel(targetModel)
-            .prefix(prefix)
-            .vocabulary(vocabulary)
-            .apiKey(apikey)
-            .headers(customParam.getHeaders())
-            .resources(customParam.getResources())
-            .parameters(customParam.getParameters())
-            .workspace(customParam.getWorkspace())
-            .build();
+            VocabularyParam.builder()
+                    .operationType(VocabularyOperationType.CREATE)
+                    .model(this.model)
+                    .targetModel(targetModel)
+                    .prefix(prefix)
+                    .vocabulary(vocabulary)
+                    .apiKey(apikey)
+                    .headers(customParam.getHeaders())
+                    .resources(customParam.getResources())
+                    .parameters(customParam.getParameters())
+                    .workspace(customParam.getWorkspace())
+                    .build();
     param.validate();
     DashScopeResult dashScopeResult = syncApi.call(param);
     lastRequestId = dashScopeResult.getRequestId();
@@ -163,21 +163,21 @@ public class VocabularyService {
   }
 
   public Vocabulary[] listVocabulary(
-      String prefix, int pageIndex, int pageSize, VocabularyParam customParam)
-      throws NoApiKeyException, InputRequiredException {
+          String prefix, int pageIndex, int pageSize, VocabularyParam customParam)
+          throws NoApiKeyException, InputRequiredException {
     VocabularyParam param =
-        VocabularyParam.builder()
-            .operationType(VocabularyOperationType.LIST)
-            .model(VOCABULARY_MODEL_NAME)
-            .prefix(prefix)
-            .pageSize(pageSize)
-            .pageIndex(pageIndex)
-            .apiKey(apikey)
-            .headers(customParam.getHeaders())
-            .resources(customParam.getResources())
-            .parameters(customParam.getParameters())
-            .workspace(customParam.getWorkspace())
-            .build();
+            VocabularyParam.builder()
+                    .operationType(VocabularyOperationType.LIST)
+                    .model(this.model)
+                    .prefix(prefix)
+                    .pageSize(pageSize)
+                    .pageIndex(pageIndex)
+                    .apiKey(apikey)
+                    .headers(customParam.getHeaders())
+                    .resources(customParam.getResources())
+                    .parameters(customParam.getParameters())
+                    .workspace(customParam.getWorkspace())
+                    .build();
     param.validate();
     DashScopeResult dashScopeResult = syncApi.call(param);
     lastRequestId = dashScopeResult.getRequestId();
@@ -185,18 +185,18 @@ public class VocabularyService {
   }
 
   public Vocabulary queryVocabulary(String vocabularyId, VocabularyParam customParam)
-      throws NoApiKeyException, InputRequiredException {
+          throws NoApiKeyException, InputRequiredException {
     VocabularyParam param =
-        VocabularyParam.builder()
-            .operationType(VocabularyOperationType.QUERY)
-            .model(VOCABULARY_MODEL_NAME)
-            .vocabularyId(vocabularyId)
-            .apiKey(apikey)
-            .headers(customParam.getHeaders())
-            .resources(customParam.getResources())
-            .parameters(customParam.getParameters())
-            .workspace(customParam.getWorkspace())
-            .build();
+            VocabularyParam.builder()
+                    .operationType(VocabularyOperationType.QUERY)
+                    .model(this.model)
+                    .vocabularyId(vocabularyId)
+                    .apiKey(apikey)
+                    .headers(customParam.getHeaders())
+                    .resources(customParam.getResources())
+                    .parameters(customParam.getParameters())
+                    .workspace(customParam.getWorkspace())
+                    .build();
     param.validate();
     DashScopeResult dashScopeResult = syncApi.call(param);
     lastRequestId = dashScopeResult.getRequestId();
@@ -204,38 +204,38 @@ public class VocabularyService {
   }
 
   public void updateVocabulary(
-      String vocabularyId, JsonArray vocabulary, VocabularyParam customParam)
-      throws NoApiKeyException, InputRequiredException {
+          String vocabularyId, JsonArray vocabulary, VocabularyParam customParam)
+          throws NoApiKeyException, InputRequiredException {
     VocabularyParam param =
-        VocabularyParam.builder()
-            .operationType(VocabularyOperationType.UPDATE)
-            .model(VOCABULARY_MODEL_NAME)
-            .vocabularyId(vocabularyId)
-            .vocabulary(vocabulary)
-            .apiKey(apikey)
-            .headers(customParam.getHeaders())
-            .resources(customParam.getResources())
-            .parameters(customParam.getParameters())
-            .workspace(customParam.getWorkspace())
-            .build();
+            VocabularyParam.builder()
+                    .operationType(VocabularyOperationType.UPDATE)
+                    .model(this.model)
+                    .vocabularyId(vocabularyId)
+                    .vocabulary(vocabulary)
+                    .apiKey(apikey)
+                    .headers(customParam.getHeaders())
+                    .resources(customParam.getResources())
+                    .parameters(customParam.getParameters())
+                    .workspace(customParam.getWorkspace())
+                    .build();
     param.validate();
     DashScopeResult dashScopeResult = syncApi.call(param);
     lastRequestId = dashScopeResult.getRequestId();
   }
 
   public void deleteVocabulary(String vocabularyId, VocabularyParam customParam)
-      throws NoApiKeyException, InputRequiredException {
+          throws NoApiKeyException, InputRequiredException {
     VocabularyParam param =
-        VocabularyParam.builder()
-            .operationType(VocabularyOperationType.DELETE)
-            .model(VOCABULARY_MODEL_NAME)
-            .vocabularyId(vocabularyId)
-            .apiKey(apikey)
-            .headers(customParam.getHeaders())
-            .resources(customParam.getResources())
-            .parameters(customParam.getParameters())
-            .workspace(customParam.getWorkspace())
-            .build();
+            VocabularyParam.builder()
+                    .operationType(VocabularyOperationType.DELETE)
+                    .model(this.model)
+                    .vocabularyId(vocabularyId)
+                    .apiKey(apikey)
+                    .headers(customParam.getHeaders())
+                    .resources(customParam.getResources())
+                    .parameters(customParam.getParameters())
+                    .workspace(customParam.getWorkspace())
+                    .build();
     param.validate();
     DashScopeResult dashScopeResult = syncApi.call(param);
     lastRequestId = dashScopeResult.getRequestId();

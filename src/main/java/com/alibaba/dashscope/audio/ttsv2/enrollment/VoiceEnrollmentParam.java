@@ -4,11 +4,12 @@ import com.alibaba.dashscope.base.HalfDuplexServiceParam;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.utils.ApiKeywords;
 import com.google.gson.JsonObject;
-import java.nio.ByteBuffer;
-import java.security.InvalidParameterException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
+
+import java.nio.ByteBuffer;
+import java.security.InvalidParameterException;
 
 @SuperBuilder
 @EqualsAndHashCode
@@ -23,9 +24,6 @@ public class VoiceEnrollmentParam extends HalfDuplexServiceParam {
   private int pageIndex;
   private int pageSize;
 
-  /**
-   * @param b HalfDuplexServiceParam
-   */
   protected VoiceEnrollmentParam(HalfDuplexServiceParamBuilder<?, ?> b) {
     super(b);
   }

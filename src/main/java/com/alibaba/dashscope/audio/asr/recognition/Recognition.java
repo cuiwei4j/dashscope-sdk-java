@@ -16,6 +16,13 @@ import com.google.gson.JsonObject;
 import io.reactivex.rxjava3.core.BackpressureStrategy;
 import io.reactivex.rxjava3.core.Emitter;
 import io.reactivex.rxjava3.core.Flowable;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.ByteBuffer;
@@ -23,12 +30,6 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.experimental.SuperBuilder;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 
 @Slf4j
 public final class Recognition {
@@ -69,19 +70,19 @@ public final class Recognition {
     }
 
     public static RecognitionParamWithStream FromRecognitionParam(
-        RecognitionParam param, Flowable<ByteBuffer> audioStream, String preRequestId) {
+            RecognitionParam param, Flowable<ByteBuffer> audioStream, String preRequestId) {
       RecognitionParamWithStream recognitionParamWithStream =
-          RecognitionParamWithStream.builder()
-              .parameters((param.getParameters()))
-              .parameter("pre_task_id", preRequestId)
-              .headers(param.getHeaders())
-              .format(param.getFormat())
-              .audioStream(audioStream)
-              .disfluencyRemovalEnabled(param.isDisfluencyRemovalEnabled())
-              .model(param.getModel())
-              .sampleRate(param.getSampleRate())
-              .apiKey(param.getApiKey())
-              .build();
+              RecognitionParamWithStream.builder()
+                      .parameters((param.getParameters()))
+                      .parameter("pre_task_id", preRequestId)
+                      .headers(param.getHeaders())
+                      .format(param.getFormat())
+                      .audioStream(audioStream)
+                      .disfluencyRemovalEnabled(param.isDisfluencyRemovalEnabled())
+                      .model(param.getModel())
+                      .sampleRate(param.getSampleRate())
+                      .apiKey(param.getApiKey())
+                      .build();
       if (param.getPhraseId() != null && !param.getPhraseId().isEmpty()) {
         recognitionParamWithStream.setPhraseId(param.getPhraseId());
       }
@@ -92,96 +93,96 @@ public final class Recognition {
 
   public Recognition() {
     serviceOption =
-        ApiServiceOption.builder()
-            .protocol(Protocol.WEBSOCKET)
-            .streamingMode(StreamingMode.DUPLEX)
-            .outputMode(OutputMode.ACCUMULATE)
-            .taskGroup(TaskGroup.AUDIO.getValue())
-            .task(Task.ASR.getValue())
-            .function(Function.RECOGNITION.getValue())
-            .build();
+            ApiServiceOption.builder()
+                    .protocol(Protocol.WEBSOCKET)
+                    .streamingMode(StreamingMode.DUPLEX)
+                    .outputMode(OutputMode.ACCUMULATE)
+                    .taskGroup(TaskGroup.AUDIO.getValue())
+                    .task(Task.ASR.getValue())
+                    .function(Function.RECOGNITION.getValue())
+                    .build();
     duplexApi = new SynchronizeFullDuplexApi<>(serviceOption);
   }
 
   public Flowable<RecognitionResult> streamCall(
-      RecognitionParam param, Flowable<ByteBuffer> audioFrame)
-      throws ApiException, NoApiKeyException {
+          RecognitionParam param, Flowable<ByteBuffer> audioFrame)
+          throws ApiException, NoApiKeyException {
     this.reset();
     preRequestId = UUID.randomUUID().toString();
     return duplexApi
-        .duplexCall(
-            RecognitionParamWithStream.FromRecognitionParam(
-                param,
-                audioFrame.doOnNext(
-                    buffer -> {
-                      if (startStreamTimeStamp < 0) {
-                        startStreamTimeStamp = System.currentTimeMillis();
+            .duplexCall(
+                    RecognitionParamWithStream.FromRecognitionParam(
+                            param,
+                            audioFrame.doOnNext(
+                                    buffer -> {
+                                      if (startStreamTimeStamp < 0) {
+                                        startStreamTimeStamp = System.currentTimeMillis();
+                                      }
+                                      log.debug("send audio frame: " + buffer.remaining());
+                                    }),
+                            preRequestId))
+            .doOnComplete(
+                    () -> {
+                      this.stopStreamTimeStamp = System.currentTimeMillis();
+                    })
+            .map(
+                    item -> {
+                      return RecognitionResult.fromDashScopeResult(item);
+                    })
+            .filter(item -> item != null && item.getSentence() != null && !item.isCompleteResult() && !item.getSentence().isHeartbeat())
+            .doOnNext(
+                    result -> {
+                      if (lastRequestId.get() == null && result.getRequestId() != null) {
+                        lastRequestId.set(result.getRequestId());
                       }
-                      log.debug("send audio frame: " + buffer.remaining());
-                    }),
-                preRequestId))
-        .doOnComplete(
-            () -> {
-              this.stopStreamTimeStamp = System.currentTimeMillis();
-            })
-        .map(
-            item -> {
-              return RecognitionResult.fromDashScopeResult(item);
-            })
-        .filter(item -> item != null && item.getSentence() != null && !item.isCompleteResult())
-        .doOnNext(
-            result -> {
-              if (lastRequestId.get() == null && result.getRequestId() != null) {
-                lastRequestId.set(result.getRequestId());
-              }
-              if (firstPackageTimeStamp < 0) {
-                firstPackageTimeStamp = System.currentTimeMillis();
-                log.debug("first package delay: " + getFirstPackageDelay());
-              }
-              log.debug(
-                  "Recv Result: "
-                      + result.getSentence().getText()
-                      + ", isEnd: "
-                      + result.isSentenceEnd());
-            })
-        .doOnComplete(
-            () -> {
-              onCompleteTimeStamp = System.currentTimeMillis();
-              log.debug("last package delay: " + getLastPackageDelay());
-            });
+                      if (firstPackageTimeStamp < 0) {
+                        firstPackageTimeStamp = System.currentTimeMillis();
+                        log.debug("first package delay: " + getFirstPackageDelay());
+                      }
+                      log.debug(
+                              "Recv Result: "
+                                      + result.getSentence().getText()
+                                      + ", isEnd: "
+                                      + result.isSentenceEnd());
+                    })
+            .doOnComplete(
+                    () -> {
+                      onCompleteTimeStamp = System.currentTimeMillis();
+                      log.debug("last package delay: " + getLastPackageDelay());
+                    });
   }
 
   public void call(RecognitionParam param, ResultCallback<RecognitionResult> callback) {
     this.reset();
     if (param == null) {
       throw new ApiException(
-          new InputRequiredException("Parameter invalid: RecognitionParam is null"));
+              new InputRequiredException("Parameter invalid: RecognitionParam is null"));
     }
 
     if (callback == null) {
       throw new ApiException(
-          new InputRequiredException("Parameter invalid: ResultCallback is null"));
+              new InputRequiredException("Parameter invalid: ResultCallback is null"));
     }
 
     Flowable<ByteBuffer> audioFrames =
-        Flowable.create(
-            emitter -> {
-              synchronized (Recognition.this) {
-                if (cmdBuffer.size() > 0) {
-                  for (AsyncCmdBuffer buffer : cmdBuffer) {
-                    if (buffer.isStop) {
-                      emitter.onComplete();
-                      return;
-                    } else {
-                      emitter.onNext(buffer.audioFrame);
-                    }
-                  }
-                  cmdBuffer.clear();
-                }
-                audioEmitter = emitter;
-              }
-            },
-            BackpressureStrategy.BUFFER);
+            Flowable.create(
+                    emitter -> {
+                      synchronized (Recognition.this) {
+                        if (cmdBuffer.size() > 0) {
+                          for (AsyncCmdBuffer buffer : cmdBuffer) {
+                            if (buffer.isStop) {
+                              emitter.onComplete();
+                              return;
+                            } else {
+                              emitter.onNext(buffer.audioFrame);
+                            }
+                          }
+                          cmdBuffer.clear();
+                        }
+                        audioEmitter = emitter;
+                      }
+                    },
+                    BackpressureStrategy.BUFFER);
     synchronized (this) {
       state = RecognitionState.RECOGNITION_STARTED;
       cmdBuffer.clear();
@@ -191,54 +192,58 @@ public final class Recognition {
     preRequestId = UUID.randomUUID().toString();
     try {
       duplexApi.duplexCall(
-          RecognitionParamWithStream.FromRecognitionParam(param, audioFrames, preRequestId),
-          new ResultCallback<DashScopeResult>() {
-            @Override
-            public void onEvent(DashScopeResult message) {
-              RecognitionResult recognitionResult = RecognitionResult.fromDashScopeResult(message);
-              if (lastRequestId.get() == null && recognitionResult.getRequestId() != null) {
-                lastRequestId.set(recognitionResult.getRequestId());
-              }
-              if (!recognitionResult.isCompleteResult()) {
-                if (firstPackageTimeStamp < 0) {
-                  firstPackageTimeStamp = System.currentTimeMillis();
-                  log.debug("first package delay: " + getFirstPackageDelay());
+              RecognitionParamWithStream.FromRecognitionParam(param, audioFrames, preRequestId),
+              new ResultCallback<DashScopeResult>() {
+                @Override
+                public void onEvent(DashScopeResult message) {
+                  RecognitionResult recognitionResult = RecognitionResult.fromDashScopeResult(message);
+                  if (recognitionResult.getSentence().isHeartbeat()) {
+                    log.debug("recv heartbeat");
+                    return;
+                  }
+                  if (lastRequestId.get() == null && recognitionResult.getRequestId() != null) {
+                    lastRequestId.set(recognitionResult.getRequestId());
+                  }
+                  if (!recognitionResult.isCompleteResult()) {
+                    if (firstPackageTimeStamp < 0) {
+                      firstPackageTimeStamp = System.currentTimeMillis();
+                      log.debug("first package delay: " + getFirstPackageDelay());
+                    }
+                    log.debug(
+                            "Recv Result: "
+                                    + recognitionResult.getSentence().getText()
+                                    + ", isEnd: "
+                                    + recognitionResult.isSentenceEnd());
+                    callback.onEvent(recognitionResult);
+                  }
                 }
-                log.debug(
-                    "Recv Result: "
-                        + recognitionResult.getSentence().getText()
-                        + ", isEnd: "
-                        + recognitionResult.isSentenceEnd());
-                callback.onEvent(recognitionResult);
-              }
-            }
 
-            @Override
-            public void onComplete() {
-              onCompleteTimeStamp = System.currentTimeMillis();
-              log.debug("last package delay: " + getLastPackageDelay());
-              synchronized (Recognition.this) {
-                state = RecognitionState.IDLE;
-              }
-              callback.onComplete();
-              if (stopLatch.get() != null) {
-                stopLatch.get().countDown();
-              }
-            }
+                @Override
+                public void onComplete() {
+                  onCompleteTimeStamp = System.currentTimeMillis();
+                  log.debug("last package delay: " + getLastPackageDelay());
+                  synchronized (Recognition.this) {
+                    state = RecognitionState.IDLE;
+                  }
+                  callback.onComplete();
+                  if (stopLatch.get() != null) {
+                    stopLatch.get().countDown();
+                  }
+                }
 
-            @Override
-            public void onError(Exception e) {
-              synchronized (Recognition.this) {
-                state = RecognitionState.IDLE;
-              }
-              ApiException apiException = new ApiException(e);
-              apiException.setStackTrace(e.getStackTrace());
-              callback.onError(apiException);
-              if (stopLatch.get() != null) {
-                stopLatch.get().countDown();
-              }
-            }
-          });
+                @Override
+                public void onError(Exception e) {
+                  synchronized (Recognition.this) {
+                    state = RecognitionState.IDLE;
+                  }
+                  ApiException apiException = new ApiException(e);
+                  apiException.setStackTrace(e.getStackTrace());
+                  callback.onError(apiException);
+                  if (stopLatch.get() != null) {
+                    stopLatch.get().countDown();
+                  }
+                }
+              });
     } catch (NoApiKeyException e) {
       ApiException apiException = new ApiException(e);
       apiException.setStackTrace(e.getStackTrace());
@@ -254,11 +259,11 @@ public final class Recognition {
     this.reset();
     if (param == null) {
       throw new ApiException(
-          new InputRequiredException("Parameter invalid: RecognitionParam is null"));
+              new InputRequiredException("Parameter invalid: RecognitionParam is null"));
     }
     if (file == null || !file.canRead()) {
       throw new ApiException(
-          new InputRequiredException("Parameter invalid: Input file is null or not exists"));
+              new InputRequiredException("Parameter invalid: Input file is null or not exists"));
     }
 
     startStreamTimeStamp = System.currentTimeMillis();
@@ -268,67 +273,71 @@ public final class Recognition {
     AtomicReference<Throwable> finalError = new AtomicReference<>(null);
     List<Sentence> sentenceList = new ArrayList<>();
     Flowable<ByteBuffer> audioFrames =
-        Flowable.create(
-            emitter -> {
-              new Thread(
-                      () -> {
-                        try {
-                          try (val channel = new FileInputStream(file).getChannel()) {
-                            ByteBuffer buffer = ByteBuffer.allocate(4096 * 4);
-                            while (channel.read(buffer) != -1 && !cancel.get()) {
-                              buffer.flip();
-                              emitter.onNext(buffer);
-                              buffer = ByteBuffer.allocate(4096 * 4);
-                              Thread.sleep(100);
-                            }
-                          }
-                          emitter.onComplete();
-                          this.stopStreamTimeStamp = System.currentTimeMillis();
-                        } catch (Exception e) {
-                          emitter.onError(e);
-                        }
-                      })
-                  .start();
-            },
-            BackpressureStrategy.BUFFER);
+            Flowable.create(
+                    emitter -> {
+                      new Thread(
+                              () -> {
+                                try {
+                                  try (val channel = new FileInputStream(file).getChannel()) {
+                                    ByteBuffer buffer = ByteBuffer.allocate(4096 * 4);
+                                    while (channel.read(buffer) != -1 && !cancel.get()) {
+                                      buffer.flip();
+                                      emitter.onNext(buffer);
+                                      buffer = ByteBuffer.allocate(4096 * 4);
+                                      Thread.sleep(100);
+                                    }
+                                  }
+                                  emitter.onComplete();
+                                  this.stopStreamTimeStamp = System.currentTimeMillis();
+                                } catch (Exception e) {
+                                  emitter.onError(e);
+                                }
+                              })
+                              .start();
+                    },
+                    BackpressureStrategy.BUFFER);
     preRequestId = UUID.randomUUID().toString();
     try {
       duplexApi
-          .duplexCall(
-              RecognitionParamWithStream.FromRecognitionParam(param, audioFrames, preRequestId))
-          .doOnComplete(
-              () -> {
-                onCompleteTimeStamp = System.currentTimeMillis();
-                log.debug("last package delay: " + getLastPackageDelay());
-              })
-          .blockingSubscribe(
-              res -> {
-                RecognitionResult recognitionResult = RecognitionResult.fromDashScopeResult(res);
-                if (lastRequestId.get() == null && recognitionResult.getRequestId() != null) {
-                  lastRequestId.set(recognitionResult.getRequestId());
-                }
-                if (!recognitionResult.isCompleteResult() && recognitionResult.isSentenceEnd()) {
-                  if (firstPackageTimeStamp < 0) {
-                    firstPackageTimeStamp = System.currentTimeMillis();
-                    log.debug("first package delay: " + getFirstPackageDelay());
-                  }
-                  log.debug(
-                      "Recv Result: "
-                          + recognitionResult.getSentence().getText()
-                          + ", isEnd: "
-                          + recognitionResult.isSentenceEnd());
-                  sentenceList.add(recognitionResult.getSentence());
-                }
-              },
-              e -> {
-                finalError.set(e);
-                cancel.set(true);
-              },
-              () -> {
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.add("sentences", new Gson().toJsonTree(sentenceList).getAsJsonArray());
-                finalResult.set(jsonObject.toString());
-              });
+              .duplexCall(
+                      RecognitionParamWithStream.FromRecognitionParam(param, audioFrames, preRequestId))
+              .doOnComplete(
+                      () -> {
+                        onCompleteTimeStamp = System.currentTimeMillis();
+                        log.debug("last package delay: " + getLastPackageDelay());
+                      })
+              .blockingSubscribe(
+                      res -> {
+                        RecognitionResult recognitionResult = RecognitionResult.fromDashScopeResult(res);
+                        if (recognitionResult.getSentence().isHeartbeat()) {
+                          log.debug("recv heartbeat");
+                          return;
+                        }
+                        if (lastRequestId.get() == null && recognitionResult.getRequestId() != null) {
+                          lastRequestId.set(recognitionResult.getRequestId());
+                        }
+                        if (!recognitionResult.isCompleteResult() && recognitionResult.isSentenceEnd()) {
+                          if (firstPackageTimeStamp < 0) {
+                            firstPackageTimeStamp = System.currentTimeMillis();
+                            log.debug("first package delay: " + getFirstPackageDelay());
+                          }
+                          log.debug(
+                                  "Recv Result: "
+                                          + recognitionResult.getSentence().getText()
+                                          + ", isEnd: "
+                                          + recognitionResult.isSentenceEnd());
+                          sentenceList.add(recognitionResult.getSentence());
+                        }
+                      },
+                      e -> {
+                        finalError.set(e);
+                        cancel.set(true);
+                      },
+                      () -> {
+                        JsonObject jsonObject = new JsonObject();
+                        jsonObject.add("sentences", new Gson().toJsonTree(sentenceList).getAsJsonArray());
+                        finalResult.set(jsonObject.toString());
+                      });
     } catch (NoApiKeyException e) {
       throw new ApiException(e);
     }
@@ -351,8 +360,8 @@ public final class Recognition {
     synchronized (this) {
       if (state != RecognitionState.RECOGNITION_STARTED) {
         throw new ApiException(
-            new InputRequiredException(
-                "State invalid: expect recognition state is started but " + state.getValue()));
+                new InputRequiredException(
+                        "State invalid: expect recognition state is started but " + state.getValue()));
       }
       if (audioEmitter == null) {
         cmdBuffer.add(AsyncCmdBuffer.builder().audioFrame(audioFrame).build());
@@ -367,8 +376,8 @@ public final class Recognition {
     synchronized (this) {
       if (state != RecognitionState.RECOGNITION_STARTED) {
         throw new ApiException(
-            new RuntimeException(
-                "State invalid: expect recognition state is started but " + state.getValue()));
+                new RuntimeException(
+                        "State invalid: expect recognition state is started but " + state.getValue()));
       }
       if (audioEmitter == null) {
         cmdBuffer.add(AsyncCmdBuffer.builder().isStop(true).build());

@@ -105,6 +105,12 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
 
   private OcrOptions ocrOptions;
 
+  /** text input */
+  private String text;
+
+  /** voice of tts */
+  private AudioParameters.Voice voice;
+
   @Override
   public JsonObject getHttpBody() {
     JsonObject requestObject = new JsonObject();
@@ -121,6 +127,13 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
   public JsonObject getInput() {
     JsonObject jsonObject = new JsonObject();
     jsonObject.add(ApiKeywords.MESSAGES, JsonUtils.toJsonArray(messages));
+    if (text != null) {
+      jsonObject.addProperty(ApiKeywords.TEXT, text);
+    }
+
+    if (voice != null) {
+      jsonObject.addProperty(ApiKeywords.VOICE, voice.getValue());
+    }
     return jsonObject;
   }
 
@@ -188,8 +201,8 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
 
   @Override
   public void validate() throws InputRequiredException {
-    if (messages == null || messages.isEmpty()) {
-      throw new InputRequiredException("Message must not null or empty!");
+    if (messages == null || messages.isEmpty() && (text == null || text.isEmpty())) {
+      throw new InputRequiredException("Message or text must not null or empty!");
     }
   }
 }

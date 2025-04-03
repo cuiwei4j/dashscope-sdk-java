@@ -22,14 +22,14 @@ public class VoiceEnrollmentService {
   public VoiceEnrollmentService(String apikey) {
     this.apikey = apikey;
     createServiceOptions =
-        ApiServiceOption.builder()
-            .protocol(Protocol.HTTP)
-            .httpMethod(HttpMethod.POST)
-            .taskGroup("audio")
-            .task("tts")
-            .function("customization")
-            .isAsyncTask(false)
-            .build();
+            ApiServiceOption.builder()
+                    .protocol(Protocol.HTTP)
+                    .httpMethod(HttpMethod.POST)
+                    .taskGroup("audio")
+                    .task("tts")
+                    .function("customization")
+                    .isAsyncTask(false)
+                    .build();
     syncApi = new SynchronizeHalfDuplexApi<>(createServiceOptions);
     this.model = VOICE_ENROLLMENT_MODEL_NAME;
   }
@@ -37,14 +37,14 @@ public class VoiceEnrollmentService {
   public VoiceEnrollmentService(String apikey, String model) {
     this.apikey = apikey;
     createServiceOptions =
-        ApiServiceOption.builder()
-            .protocol(Protocol.HTTP)
-            .httpMethod(HttpMethod.POST)
-            .taskGroup("audio")
-            .task("tts")
-            .function("customization")
-            .isAsyncTask(false)
-            .build();
+            ApiServiceOption.builder()
+                    .protocol(Protocol.HTTP)
+                    .httpMethod(HttpMethod.POST)
+                    .taskGroup("audio")
+                    .task("tts")
+                    .function("customization")
+                    .isAsyncTask(false)
+                    .build();
     syncApi = new SynchronizeHalfDuplexApi<>(createServiceOptions);
     this.model = model;
   }
@@ -60,9 +60,9 @@ public class VoiceEnrollmentService {
    * @throws InputRequiredException 如果必须参数为空
    */
   public Voice createVoice(String targetModel, String prefix, String url)
-      throws NoApiKeyException, InputRequiredException {
+          throws NoApiKeyException, InputRequiredException {
     return createVoice(
-        targetModel, prefix, url, VoiceEnrollmentParam.builder().model(this.model).build());
+            targetModel, prefix, url, VoiceEnrollmentParam.builder().model(this.model).build());
   }
 
   /**
@@ -75,7 +75,7 @@ public class VoiceEnrollmentService {
    */
   public Voice[] listVoice(String prefix) throws NoApiKeyException, InputRequiredException {
     return listVoice(
-        prefix, 0, 10, VoiceEnrollmentParam.builder().model(VOICE_ENROLLMENT_MODEL_NAME).build());
+            prefix, 0, 10, VoiceEnrollmentParam.builder().model(this.model).build());
   }
 
   /**
@@ -89,12 +89,12 @@ public class VoiceEnrollmentService {
    * @throws InputRequiredException 如果必须参数为空
    */
   public Voice[] listVoice(String prefix, int pageIndex, int pageSize)
-      throws NoApiKeyException, InputRequiredException {
+          throws NoApiKeyException, InputRequiredException {
     return listVoice(
-        prefix,
-        pageIndex,
-        pageSize,
-        VoiceEnrollmentParam.builder().model(VOICE_ENROLLMENT_MODEL_NAME).build());
+            prefix,
+            pageIndex,
+            pageSize,
+            VoiceEnrollmentParam.builder().model(this.model).build());
   }
 
   /**
@@ -107,7 +107,7 @@ public class VoiceEnrollmentService {
    */
   public Voice queryVoice(String voiceId) throws NoApiKeyException, InputRequiredException {
     return queryVoice(
-        voiceId, VoiceEnrollmentParam.builder().model(VOICE_ENROLLMENT_MODEL_NAME).build());
+            voiceId, VoiceEnrollmentParam.builder().model(this.model).build());
   }
 
   /**
@@ -119,9 +119,9 @@ public class VoiceEnrollmentService {
    * @throws InputRequiredException 如果必须参数为空
    */
   public void updateVoice(String voiceId, String url)
-      throws NoApiKeyException, InputRequiredException {
+          throws NoApiKeyException, InputRequiredException {
     updateVoice(
-        voiceId, url, VoiceEnrollmentParam.builder().model(VOICE_ENROLLMENT_MODEL_NAME).build());
+            voiceId, url, VoiceEnrollmentParam.builder().model(this.model).build());
   }
 
   /**
@@ -132,26 +132,26 @@ public class VoiceEnrollmentService {
    * @throws InputRequiredException 如果必须参数为空
    */
   public void deleteVoice(String voiceId) throws NoApiKeyException, InputRequiredException {
-    deleteVoice(voiceId, VoiceEnrollmentParam.builder().model(VOICE_ENROLLMENT_MODEL_NAME).build());
+    deleteVoice(voiceId, VoiceEnrollmentParam.builder().model(this.model).build());
   }
 
   public Voice createVoice(
-      String targetModel, String prefix, String url, VoiceEnrollmentParam customParam)
-      throws NoApiKeyException, InputRequiredException {
+          String targetModel, String prefix, String url, VoiceEnrollmentParam customParam)
+          throws NoApiKeyException, InputRequiredException {
 
     VoiceEnrollmentParam param =
-        VoiceEnrollmentParam.builder()
-            .operationType(VoiceEnrollmentOperationType.CREATE)
-            .model(VOICE_ENROLLMENT_MODEL_NAME)
-            .targetModel(targetModel)
-            .prefix(prefix)
-            .url(url)
-            .apiKey(apikey)
-            .headers(customParam.getHeaders())
-            .resources(customParam.getResources())
-            .parameters(customParam.getParameters())
-            .workspace(customParam.getWorkspace())
-            .build();
+            VoiceEnrollmentParam.builder()
+                    .operationType(VoiceEnrollmentOperationType.CREATE)
+                    .model(this.model)
+                    .targetModel(targetModel)
+                    .prefix(prefix)
+                    .url(url)
+                    .apiKey(apikey)
+                    .headers(customParam.getHeaders())
+                    .resources(customParam.getResources())
+                    .parameters(customParam.getParameters())
+                    .workspace(customParam.getWorkspace())
+                    .build();
     param.validate();
     DashScopeResult dashScopeResult = syncApi.call(param);
     lastRequestId = dashScopeResult.getRequestId();
@@ -159,21 +159,21 @@ public class VoiceEnrollmentService {
   }
 
   public Voice[] listVoice(
-      String prefix, int pageIndex, int pageSize, VoiceEnrollmentParam customParam)
-      throws NoApiKeyException, InputRequiredException {
+          String prefix, int pageIndex, int pageSize, VoiceEnrollmentParam customParam)
+          throws NoApiKeyException, InputRequiredException {
     VoiceEnrollmentParam param =
-        VoiceEnrollmentParam.builder()
-            .operationType(VoiceEnrollmentOperationType.LIST)
-            .model(VOICE_ENROLLMENT_MODEL_NAME)
-            .prefix(prefix)
-            .pageSize(pageSize)
-            .pageIndex(pageIndex)
-            .apiKey(apikey)
-            .headers(customParam.getHeaders())
-            .resources(customParam.getResources())
-            .parameters(customParam.getParameters())
-            .workspace(customParam.getWorkspace())
-            .build();
+            VoiceEnrollmentParam.builder()
+                    .operationType(VoiceEnrollmentOperationType.LIST)
+                    .model(this.model)
+                    .prefix(prefix)
+                    .pageSize(pageSize)
+                    .pageIndex(pageIndex)
+                    .apiKey(apikey)
+                    .headers(customParam.getHeaders())
+                    .resources(customParam.getResources())
+                    .parameters(customParam.getParameters())
+                    .workspace(customParam.getWorkspace())
+                    .build();
     param.validate();
     DashScopeResult dashScopeResult = syncApi.call(param);
     lastRequestId = dashScopeResult.getRequestId();
@@ -181,18 +181,18 @@ public class VoiceEnrollmentService {
   }
 
   public Voice queryVoice(String voiceId, VoiceEnrollmentParam customParam)
-      throws NoApiKeyException, InputRequiredException {
+          throws NoApiKeyException, InputRequiredException {
     VoiceEnrollmentParam param =
-        VoiceEnrollmentParam.builder()
-            .operationType(VoiceEnrollmentOperationType.QUERY)
-            .model(VOICE_ENROLLMENT_MODEL_NAME)
-            .voiceId(voiceId)
-            .apiKey(apikey)
-            .headers(customParam.getHeaders())
-            .resources(customParam.getResources())
-            .parameters(customParam.getParameters())
-            .workspace(customParam.getWorkspace())
-            .build();
+            VoiceEnrollmentParam.builder()
+                    .operationType(VoiceEnrollmentOperationType.QUERY)
+                    .model(this.model)
+                    .voiceId(voiceId)
+                    .apiKey(apikey)
+                    .headers(customParam.getHeaders())
+                    .resources(customParam.getResources())
+                    .parameters(customParam.getParameters())
+                    .workspace(customParam.getWorkspace())
+                    .build();
     param.validate();
     DashScopeResult dashScopeResult = syncApi.call(param);
     lastRequestId = dashScopeResult.getRequestId();
@@ -200,37 +200,37 @@ public class VoiceEnrollmentService {
   }
 
   public void updateVoice(String voiceId, String url, VoiceEnrollmentParam customParam)
-      throws NoApiKeyException, InputRequiredException {
+          throws NoApiKeyException, InputRequiredException {
     VoiceEnrollmentParam param =
-        VoiceEnrollmentParam.builder()
-            .operationType(VoiceEnrollmentOperationType.UPDATE)
-            .model(VOICE_ENROLLMENT_MODEL_NAME)
-            .voiceId(voiceId)
-            .url(url)
-            .apiKey(apikey)
-            .headers(customParam.getHeaders())
-            .resources(customParam.getResources())
-            .parameters(customParam.getParameters())
-            .workspace(customParam.getWorkspace())
-            .build();
+            VoiceEnrollmentParam.builder()
+                    .operationType(VoiceEnrollmentOperationType.UPDATE)
+                    .model(this.model)
+                    .voiceId(voiceId)
+                    .url(url)
+                    .apiKey(apikey)
+                    .headers(customParam.getHeaders())
+                    .resources(customParam.getResources())
+                    .parameters(customParam.getParameters())
+                    .workspace(customParam.getWorkspace())
+                    .build();
     param.validate();
     DashScopeResult dashScopeResult = syncApi.call(param);
     lastRequestId = dashScopeResult.getRequestId();
   }
 
   public void deleteVoice(String voiceId, VoiceEnrollmentParam customParam)
-      throws NoApiKeyException, InputRequiredException {
+          throws NoApiKeyException, InputRequiredException {
     VoiceEnrollmentParam param =
-        VoiceEnrollmentParam.builder()
-            .operationType(VoiceEnrollmentOperationType.DELETE)
-            .model(VOICE_ENROLLMENT_MODEL_NAME)
-            .voiceId(voiceId)
-            .apiKey(apikey)
-            .headers(customParam.getHeaders())
-            .resources(customParam.getResources())
-            .parameters(customParam.getParameters())
-            .workspace(customParam.getWorkspace())
-            .build();
+            VoiceEnrollmentParam.builder()
+                    .operationType(VoiceEnrollmentOperationType.DELETE)
+                    .model(this.model)
+                    .voiceId(voiceId)
+                    .apiKey(apikey)
+                    .headers(customParam.getHeaders())
+                    .resources(customParam.getResources())
+                    .parameters(customParam.getParameters())
+                    .workspace(customParam.getWorkspace())
+                    .build();
     param.validate();
     DashScopeResult dashScopeResult = syncApi.call(param);
     lastRequestId = dashScopeResult.getRequestId();
