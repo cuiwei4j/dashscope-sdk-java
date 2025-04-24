@@ -11,17 +11,16 @@ import com.alibaba.dashscope.protocol.ApiServiceOption;
 import com.alibaba.dashscope.protocol.Protocol;
 import com.alibaba.dashscope.protocol.StreamingMode;
 import io.reactivex.rxjava3.core.Flowable;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public final class SpeechSynthesizer {
@@ -35,8 +34,6 @@ public final class SpeechSynthesizer {
   private long firstPackageTimeStamp = -1;
   private double recvAudioLength = 0;
 
-  private AtomicReference<String> lastRequestId = new AtomicReference<>(null);
-
   private String preRequestId = null;
 
   public String getLastRequestId() {
@@ -44,14 +41,14 @@ public final class SpeechSynthesizer {
   }
 
   private ApiServiceOption serviceOption =
-      ApiServiceOption.builder()
-          .protocol(Protocol.WEBSOCKET)
-          .streamingMode(StreamingMode.OUT)
-          .outputMode(OutputMode.ACCUMULATE)
-          .taskGroup(TaskGroup.AUDIO.getValue())
-          .task(Task.TEXT_TO_SPEECH.getValue())
-          .function(Function.SPEECH_SYNTHESIZER.getValue())
-          .build();
+          ApiServiceOption.builder()
+                  .protocol(Protocol.WEBSOCKET)
+                  .streamingMode(StreamingMode.OUT)
+                  .outputMode(OutputMode.ACCUMULATE)
+                  .taskGroup(TaskGroup.AUDIO.getValue())
+                  .task(Task.TEXT_TO_SPEECH.getValue())
+                  .function(Function.SPEECH_SYNTHESIZER.getValue())
+                  .build();
   @Getter private final SynchronizeHalfDuplexApi<SpeechSynthesisParam> syncApi;
 
   public SpeechSynthesizer() {
@@ -63,7 +60,9 @@ public final class SpeechSynthesizer {
     recvAudioLength = 0;
     firstPackageTimeStamp = -1;
     preRequestId = UUID.randomUUID().toString();
-    param.getParameters().put("pre_task_id", preRequestId);
+    Map<String, Object> parameters = new HashMap<>();
+    parameters.put("pre_task_id", preRequestId);
+    param.setParameters(parameters);
     timestamps.clear();
     audioData = null;
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -101,17 +100,17 @@ public final class SpeechSynthesizer {
               log.debug("[TtsV2] first package delay: " + getFirstPackageDelay() + " ms");
             }
             recvAudioLength +=
-                (double) result.getAudioFrame().capacity()
-                    / ((double) (2 * param.getSampleRate()) / 1000);
+                    (double) result.getAudioFrame().capacity()
+                            / ((double) (2 * param.getSampleRate()) / 1000);
             long current = System.currentTimeMillis();
             double current_rtf = (current - startStreamTimeStamp) / recvAudioLength;
             log.debug(
-                "[TtsV2] Recv Audio Binary: "
-                    + result.getAudioFrame().capacity()
-                    + " bytes, total audio "
-                    + recvAudioLength
-                    + " ms, current_rtf: "
-                    + current_rtf);
+                    "[TtsV2] Recv Audio Binary: "
+                            + result.getAudioFrame().capacity()
+                            + " bytes, total audio "
+                            + recvAudioLength
+                            + " ms, current_rtf: "
+                            + current_rtf);
             try {
               channel.write(result.getAudioFrame());
             } catch (IOException e) {
@@ -154,7 +153,9 @@ public final class SpeechSynthesizer {
     recvAudioLength = 0;
     firstPackageTimeStamp = -1;
     preRequestId = UUID.randomUUID().toString();
-    param.getParameters().put("pre_task_id", preRequestId);
+    Map<String, Object> parameters = new HashMap<>();
+    parameters.put("pre_task_id", preRequestId);
+    param.setParameters(parameters);
     audioData = null;
     timestamps.clear();
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -162,70 +163,70 @@ public final class SpeechSynthesizer {
     AtomicReference<Sentence> lastSentenceRef = new AtomicReference<>();
     try {
       return syncApi
-          .streamCall(param)
-          .map(
-              message -> {
-                SpeechSynthesisResult result = SpeechSynthesisResult.fromDashScopeResult(message);
-                if (result.getTimestamp() != null) {
-                  Sentence sentence = result.getTimestamp();
-                  if (lastSentenceRef.get() == null) {
-                    lastSentenceRef.set(sentence);
-                    if (sentence.getEndTime() != 0) {
-                      timestamps.add(sentence);
-                    }
-                  } else {
-                    if (!lastSentenceRef.get().equals(sentence) && sentence.getEndTime() != 0) {
-                      lastSentenceRef.set(sentence);
-                      timestamps.add(sentence);
-                    }
-                  }
-                }
-                if (result.getAudioFrame() != null) {
-                  if (recvAudioLength == 0) {
-                    firstPackageTimeStamp = System.currentTimeMillis();
-                    log.debug("[TtsV2] first package delay: " + getFirstPackageDelay() + " ms");
-                  }
-                  recvAudioLength +=
-                      (double) result.getAudioFrame().capacity()
-                          / ((double) (2 * param.getSampleRate()) / 1000);
-                  long current = System.currentTimeMillis();
-                  double current_rtf = (current - startStreamTimeStamp) / recvAudioLength;
-                  log.debug(
-                      "[TtsV2] Recv Audio Binary: "
-                          + result.getAudioFrame().capacity()
-                          + " bytes, total audio "
-                          + recvAudioLength
-                          + " ms, current_rtf: "
-                          + current_rtf);
-                  try {
-                    channel.write(result.getAudioFrame());
-                  } catch (IOException e) {
-                    log.error("Failed to write audio: {}", result.getAudioFrame(), e);
-                  }
-                }
-                return result;
-              })
-          .doOnComplete(
-              () -> {
-                try {
-                  audioData = ByteBuffer.wrap(outputStream.toByteArray());
-                  channel.close();
-                  outputStream.close();
-                } catch (IOException e) {
-                  log.error("Failed to close channel: {}", channel, e);
-                }
-              })
-          .doOnError(
-              e -> {
-                try {
-                  channel.close();
-                  outputStream.close();
-                  timestamps.clear();
-                  audioData = null;
-                } catch (IOException ex) {
-                  log.error("Failed to close channel: {}", channel, ex);
-                }
-              });
+              .streamCall(param)
+              .map(
+                      message -> {
+                        SpeechSynthesisResult result = SpeechSynthesisResult.fromDashScopeResult(message);
+                        if (result.getTimestamp() != null) {
+                          Sentence sentence = result.getTimestamp();
+                          if (lastSentenceRef.get() == null) {
+                            lastSentenceRef.set(sentence);
+                            if (sentence.getEndTime() != 0) {
+                              timestamps.add(sentence);
+                            }
+                          } else {
+                            if (!lastSentenceRef.get().equals(sentence) && sentence.getEndTime() != 0) {
+                              lastSentenceRef.set(sentence);
+                              timestamps.add(sentence);
+                            }
+                          }
+                        }
+                        if (result.getAudioFrame() != null) {
+                          if (recvAudioLength == 0) {
+                            firstPackageTimeStamp = System.currentTimeMillis();
+                            log.debug("[TtsV2] first package delay: " + getFirstPackageDelay() + " ms");
+                          }
+                          recvAudioLength +=
+                                  (double) result.getAudioFrame().capacity()
+                                          / ((double) (2 * param.getSampleRate()) / 1000);
+                          long current = System.currentTimeMillis();
+                          double current_rtf = (current - startStreamTimeStamp) / recvAudioLength;
+                          log.debug(
+                                  "[TtsV2] Recv Audio Binary: "
+                                          + result.getAudioFrame().capacity()
+                                          + " bytes, total audio "
+                                          + recvAudioLength
+                                          + " ms, current_rtf: "
+                                          + current_rtf);
+                          try {
+                            channel.write(result.getAudioFrame());
+                          } catch (IOException e) {
+                            log.error("Failed to write audio: {}", result.getAudioFrame(), e);
+                          }
+                        }
+                        return result;
+                      })
+              .doOnComplete(
+                      () -> {
+                        try {
+                          audioData = ByteBuffer.wrap(outputStream.toByteArray());
+                          channel.close();
+                          outputStream.close();
+                        } catch (IOException e) {
+                          log.error("Failed to close channel: {}", channel, e);
+                        }
+                      })
+              .doOnError(
+                      e -> {
+                        try {
+                          channel.close();
+                          outputStream.close();
+                          timestamps.clear();
+                          audioData = null;
+                        } catch (IOException ex) {
+                          log.error("Failed to close channel: {}", channel, ex);
+                        }
+                      });
     } catch (NoApiKeyException e) {
       throw new ApiException(e);
     }
