@@ -8,6 +8,7 @@ import com.alibaba.dashscope.utils.JsonUtils;
 import com.google.gson.JsonObject;
 import io.reactivex.rxjava3.core.Flowable;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -284,17 +285,55 @@ public class ApplicationCalls {
         }
     }
 
+    public static void callWithMoreParameters() throws NoApiKeyException, InputRequiredException {
+        ApplicationParam param = ApplicationParam.builder()
+                .appId(APP_ID)
+//                .enablePremium(true)
+                .enableSystemTime(true)
+                .enableWebSearch(true)
+                .mcpServers(Arrays.asList("amap-maps", "Meitu"))
+                .dialogRound(2)
+                .modelId("qwen-plus")
+                .prompt("从杭州西湖到杭州东站，打车多少钱?")
+                .topP(0.8)
+                .incrementalOutput(true)
+                .build();
+
+        Application application = new Application();
+        Flowable<ApplicationResult> result = application.streamCall(param);
+        result.blockingForEach(data -> System.out.printf("result: %s%n", data));
+//        result.blockingForEach(data -> System.out.printf(data.getOutput().getText()));
+        System.out.print("\n");
+    }
+
+    public static void callWithThinking() throws NoApiKeyException, InputRequiredException {
+        ApplicationParam param = ApplicationParam.builder()
+                .appId(APP_ID)
+                .prompt("1.1和0.9哪个大?")
+                .enableThinking(true)
+                .hasThoughts(true)
+                .incrementalOutput(true)
+                .build();
+
+        Application application = new Application();
+        Flowable<ApplicationResult> result = application.streamCall(param);
+        result.blockingForEach(data -> System.out.printf("result: %s%n", data));
+//        result.blockingForEach(data -> System.out.printf(data.getOutput().getText()));
+        System.out.print("\n");
+    }
     public static void main(String[] args) {
         try {
-//        ragCall();
-//        ragCallWithTags();
-//        flowCall();
-//        callWithSession();
-//        streamCall();
-//        callWithWorkspace();
+//            ragCall();
+//            ragCallWithTags();
+//            flowCall();
+//            callWithSession();
+//            streamCall();
+//            callWithWorkspace();
 //            callWithMemory();
 //            callWithAssistantServing();
-            ragCallWithDocReference();
+//            ragCallWithDocReference();
+//            callWithMoreParameters();
+            callWithThinking();
         } catch (ApiException | NoApiKeyException | InputRequiredException e) {
             System.out.printf("Exception: %s", e.getMessage());
         }

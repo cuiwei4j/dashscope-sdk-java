@@ -2,13 +2,6 @@
 
 package com.alibaba.dashscope.aigc.generation;
 
-import static com.alibaba.dashscope.utils.ApiKeywords.HISTORY;
-import static com.alibaba.dashscope.utils.ApiKeywords.MAX_TOKENS;
-import static com.alibaba.dashscope.utils.ApiKeywords.MESSAGES;
-import static com.alibaba.dashscope.utils.ApiKeywords.PROMPT;
-import static com.alibaba.dashscope.utils.ApiKeywords.REPETITION_PENALTY;
-import static com.alibaba.dashscope.utils.ApiKeywords.STOP;
-
 import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.common.ResponseFormat;
 import com.alibaba.dashscope.common.Role;
@@ -18,15 +11,18 @@ import com.alibaba.dashscope.utils.JsonUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Singular;
 import lombok.experimental.SuperBuilder;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.alibaba.dashscope.utils.ApiKeywords.*;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -113,11 +109,29 @@ public class GenerationParam extends GenerationParamBase {
   @SerializedName("tool_choice")
   protected Object toolChoice;
 
+  /** enable parallel tool calls */
+  protected Boolean parallelToolCalls;
+
   /** 联网搜索的策略。仅当enable_search为true时生效。 */
   private SearchOptions searchOptions;
 
   /** 返回内容的格式。 */
   private ResponseFormat responseFormat;
+
+  /** 是否开启推理 */
+  private Boolean enableThinking;
+
+  /** 推理生成的最大tokens数 */
+  private Integer thinkingBudget;
+
+  /** 返回每个输出token的对数概率 */
+  private Boolean logprobs;
+
+  /** 指定在每个token位置返回的最可能token的数量 */
+  private Integer topLogprobs;
+
+  /** 生成响应的个数 */
+  private Integer n;
 
   @Override
   public JsonObject getInput() {
@@ -198,8 +212,32 @@ public class GenerationParam extends GenerationParamBase {
       params.put("search_options", searchOptions);
     }
 
+    if (parallelToolCalls != null) {
+      params.put("parallel_tool_calls", parallelToolCalls);
+    }
+
     if (responseFormat != null) {
       params.put("response_format", responseFormat);
+    }
+
+    if (enableThinking != null) {
+      params.put("enable_thinking", enableThinking);
+    }
+
+    if (thinkingBudget != null) {
+      params.put("thinking_budget", thinkingBudget);
+    }
+
+    if (logprobs != null) {
+      params.put("logprobs", logprobs);
+    }
+
+    if (topLogprobs != null) {
+      params.put("top_logprobs", topLogprobs);
+    }
+
+    if (n != null) {
+      params.put("n", n);
     }
 
     params.putAll(parameters);

@@ -1,19 +1,24 @@
 // Copyright (c) Alibaba, Inc. and its affiliates.
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
-
 import com.alibaba.dashscope.aigc.multimodalconversation.*;
-import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.common.MultiModalMessage;
 import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.exception.UploadFileException;
+import com.alibaba.dashscope.tools.FunctionDefinition;
+import com.alibaba.dashscope.tools.ToolFunction;
 import com.alibaba.dashscope.utils.JsonUtils;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.victools.jsonschema.generator.*;
 import io.reactivex.rxjava3.core.Flowable;
+
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class MultiModalConversationUsage {
     private static final String modelName = "qwen-vl-chat-v1";
@@ -67,6 +72,52 @@ public class MultiModalConversationUsage {
         param.setMessages((List) messages);
         result = conv.call(param);
         System.out.print(result);
+    }
+
+    public static void textInTextStreamOut() throws ApiException, NoApiKeyException, UploadFileException, IOException {
+        // create jsonschema generator
+        SchemaGeneratorConfigBuilder configBuilder =
+                new SchemaGeneratorConfigBuilder(SchemaVersion.DRAFT_2020_12, OptionPreset.PLAIN_JSON);
+        SchemaGeneratorConfig config = configBuilder.with(Option.EXTRA_OPEN_API_FORMAT_VALUES)
+                .without(Option.FLATTENED_ENUMS_FROM_TOSTRING).build();
+        SchemaGenerator generator = new SchemaGenerator(config);
+
+        // generate jsonSchema of function.
+        ObjectNode jsonSchema = generator.generateSchema(GenerationToolChoice.AddFunctionTool.class);
+
+        // call with tools of function call, jsonSchema.toString() is jsonschema String.
+        FunctionDefinition fd = FunctionDefinition.builder().name("add").description("add two number")
+                .parameters(JsonUtils.parseString(jsonSchema.toString()).getAsJsonObject()).build();
+
+        // build system message
+        MultiModalMessage systemMsg = MultiModalMessage.builder()
+                .role(Role.SYSTEM.getValue())
+                .content(Collections.singletonList(Collections.singletonMap("text", "You are a helpful assistant. When asked a question, use tools wherever possible.")))
+                .build();
+
+        // user message to call function.
+        MultiModalMessage userMsg = MultiModalMessage.builder()
+                .role(Role.USER.getValue())
+                .content(Collections.singletonList(Collections.singletonMap("text", "Add 1234 and 4321, Add 2345 and 5432")))
+                .build();
+
+        ToolFunction toolFunction = ToolFunction.builder().function(FunctionDefinition.builder().name("add").build()).build();
+
+        MultiModalConversation conversation = new MultiModalConversation();
+
+        MultiModalConversationParam param = MultiModalConversationParam.builder()
+                .model("qwen-vl-max-latest")
+                .messages(Arrays.asList(systemMsg, userMsg))
+                .modalities(Collections.singletonList("text"))
+                .toolChoice(toolFunction)
+                .tools(Arrays.asList(ToolFunction.builder().function(fd).build()))
+                .parallelToolCalls(true)
+                .build();
+        Flowable<MultiModalConversationResult> results = conversation.streamCall(param);
+
+        results.blockingForEach(result -> {
+            System.out.println(JsonUtils.toJson(result));
+        });
     }
 
     public static void textInAudioStreamOut() throws ApiException, NoApiKeyException, UploadFileException, IOException {
@@ -225,7 +276,8 @@ public class MultiModalConversationUsage {
         try {
 //            simpleMultiModalConversationCall();
 //            MultiRoundConversationCall();
-            textInAudioStreamOut();
+//            textInAudioStreamOut();
+            textInTextStreamOut();
 //            audioInTextAudioStreamOut();
 //            imageInTextAudioStreamOut();
 //            videoInTextAudioStreamOut();
