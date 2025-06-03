@@ -3,8 +3,11 @@ package com.alibaba.dashscope.aigc.videosynthesis;
 
 import com.alibaba.dashscope.base.HalfDuplexServiceParam;
 import com.alibaba.dashscope.exception.InputRequiredException;
+import com.alibaba.dashscope.exception.NoApiKeyException;
+import com.alibaba.dashscope.exception.UploadFileException;
 import com.alibaba.dashscope.utils.GsonExclude;
 import com.alibaba.dashscope.utils.JsonUtils;
+import com.alibaba.dashscope.utils.PreprocessInputImage;
 import com.google.gson.JsonObject;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +26,8 @@ import static com.alibaba.dashscope.utils.ApiKeywords.*;
 @SuperBuilder
 public class VideoSynthesisParam extends HalfDuplexServiceParam {
 
+  @Builder.Default private Map<String, String> inputChecks = new HashMap<>();
+
   @Builder.Default private String size = VideoSynthesis.Size.DEFAULT;
 
   @Builder.Default private Integer steps = null;
@@ -32,12 +37,13 @@ public class VideoSynthesisParam extends HalfDuplexServiceParam {
   @Builder.Default private String prompt = null;
 
   /** The negative prompt is the opposite of the prompt meaning. */
-  @Builder.Default private String negative_prompt = null;
+  @Builder.Default private String negativePrompt = null;
 
   /** LoRa input, such as gufeng, katong, etc. */
   @Builder.Default private String template = null;
 
-  /** Whether to enable write expansion. The default value is True. */
+  /** use promptExtend in parameters */
+  @Deprecated
   @Builder.Default private Boolean extendPrompt = Boolean.TRUE;
 
   /** The input image url, Generate the URL of the image referenced by the video */
@@ -49,6 +55,21 @@ public class VideoSynthesisParam extends HalfDuplexServiceParam {
   /** Duration of video generation. The default value is 5, in seconds */
   @Builder.Default private Integer duration = VideoSynthesis.Duration.DEFAULT;
 
+  /** The URL of the first frame image for generating the video. */
+  @Builder.Default private String firstFrameUrl = null;
+
+  /** The URL of the last frame image for generating the video. */
+  @Builder.Default private String lastFrameUrl = null;
+
+  @Builder.Default private String headFrame = null;
+
+  @Builder.Default private String tailFrame = null;
+
+  @Builder.Default private Boolean withAudio = Boolean.FALSE;
+
+  /** The resolution of the generated video */
+  @Builder.Default private String resolution = VideoSynthesis.Resolution.DEFAULT;
+
   /** The inputs of the model. */
   @Override
   public JsonObject getInput() {
@@ -59,8 +80,8 @@ public class VideoSynthesisParam extends HalfDuplexServiceParam {
 
     jsonObject.addProperty(EXTEND_PROMPT, extendPrompt);
 
-    if (negative_prompt != null && !negative_prompt.isEmpty()) {
-      jsonObject.addProperty(NEGATIVE_PROMPT, negative_prompt);
+    if (negativePrompt != null && !negativePrompt.isEmpty()) {
+      jsonObject.addProperty(NEGATIVE_PROMPT, negativePrompt);
     }
     if (template != null && !template.isEmpty()) {
       jsonObject.addProperty(TEMPLATE, template);
@@ -68,6 +89,23 @@ public class VideoSynthesisParam extends HalfDuplexServiceParam {
     if (imgUrl != null && !imgUrl.isEmpty()) {
       jsonObject.addProperty(IMG_URL, imgUrl);
     }
+
+    if (firstFrameUrl != null && !firstFrameUrl.isEmpty()) {
+      jsonObject.addProperty(FIRST_FRAME_URL, firstFrameUrl);
+    }
+
+    if (lastFrameUrl != null && !lastFrameUrl.isEmpty()) {
+      jsonObject.addProperty(LAST_FRAME_URL, lastFrameUrl);
+    }
+
+    if (headFrame != null && !headFrame.isEmpty()) {
+      jsonObject.addProperty(HEAD_FRAME, headFrame);
+    }
+
+    if (tailFrame != null && !tailFrame.isEmpty()) {
+      jsonObject.addProperty(TAIL_FRAME, tailFrame);
+    }
+
     if (extraInputs != null && !extraInputs.isEmpty()) {
       JsonObject extraInputsJsonObject = JsonUtils.parametersToJsonObject(extraInputs);
       JsonUtils.merge(jsonObject, extraInputsJsonObject);
@@ -82,6 +120,10 @@ public class VideoSynthesisParam extends HalfDuplexServiceParam {
     params.put(DURATION, duration);
 
     params.put(SIZE, size);
+
+    params.put(RESOLUTION, resolution);
+
+    params.put(WITH_AUDIO, withAudio);
 
     if (steps != null) {
       params.put(STEPS, steps);
@@ -100,8 +142,9 @@ public class VideoSynthesisParam extends HalfDuplexServiceParam {
     JsonObject body = new JsonObject();
     body.addProperty(MODEL, getModel());
     body.add(INPUT, getInput());
-    if (getParameters() != null) {
-      body.add(PARAMETERS, JsonUtils.parametersToJsonObject(getParameters()));
+    Map<String, Object> params = getParameters();
+    if (params != null) {
+      body.add(PARAMETERS, JsonUtils.parametersToJsonObject(params));
     }
     return body;
   }
@@ -115,4 +158,25 @@ public class VideoSynthesisParam extends HalfDuplexServiceParam {
   /** Validate all parameters. */
   @Override
   public void validate() throws InputRequiredException {}
+
+  public void checkAndUpload() throws NoApiKeyException, UploadFileException {
+    Map<String, String> inputChecks = new HashMap<>();
+    inputChecks.put(IMG_URL, this.imgUrl);
+    inputChecks.put(FIRST_FRAME_URL, this.firstFrameUrl);
+    inputChecks.put(LAST_FRAME_URL, this.lastFrameUrl);
+    inputChecks.put(HEAD_FRAME, this.headFrame);
+    inputChecks.put(TAIL_FRAME, this.tailFrame);
+
+    boolean isUpload = PreprocessInputImage.checkAndUploadImage(getModel(), inputChecks, getApiKey());
+
+    if (isUpload) {
+      this.putHeader("X-DashScope-OssResourceResolve", "enable");
+
+      this.imgUrl = inputChecks.get(IMG_URL);
+      this.firstFrameUrl = inputChecks.get(FIRST_FRAME_URL);
+      this.lastFrameUrl = inputChecks.get(LAST_FRAME_URL);
+      this.headFrame = inputChecks.get(HEAD_FRAME);
+      this.tailFrame = inputChecks.get(TAIL_FRAME);
+    }
+  }
 }
