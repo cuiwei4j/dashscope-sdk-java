@@ -321,14 +321,16 @@ public class ApplicationCalls {
 //        result.blockingForEach(data -> System.out.printf(data.getOutput().getText()));
         System.out.print("\n");
     }
+
+
     public static void main(String[] args) {
         try {
-//            ragCall();
-//            ragCallWithTags();
-//            flowCall();
-//            callWithSession();
-//            streamCall();
-//            callWithWorkspace();
+//        ragCall();
+//        ragCallWithTags();
+//        flowCall();
+//        callWithSession();
+//        streamCall();
+//        callWithWorkspace();
 //            callWithMemory();
 //            callWithAssistantServing();
 //            ragCallWithDocReference();

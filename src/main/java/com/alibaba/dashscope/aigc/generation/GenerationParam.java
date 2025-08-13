@@ -11,7 +11,6 @@ import com.alibaba.dashscope.utils.JsonUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
-import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -49,7 +48,7 @@ public class GenerationParam extends GenerationParamBase {
   /* Whether to enable web search(quark).
   Currently works best only on the first round of conversation.
   Default to False */
-  @Builder.Default private Boolean enableSearch = false;
+  @Default private Boolean enableSearch = false;
   /*
    * When generating, the seed of the random number is used to control the randomness of the model generation.
    * If you use the same seed, each run will generate the same results;
@@ -89,7 +88,7 @@ public class GenerationParam extends GenerationParamBase {
    * apple
    * </pre>
    */
-  @Builder.Default private Boolean incrementalOutput = false;
+  @Default private Boolean incrementalOutput = false;
 
   /** Maximum tokens to generate. */
   private Integer maxTokens;
@@ -132,6 +131,9 @@ public class GenerationParam extends GenerationParamBase {
 
   /** 生成响应的个数 */
   private Integer n;
+
+  /** 翻译参数 */
+  private TranslationOptions translationOptions;
 
   @Override
   public JsonObject getInput() {
@@ -208,12 +210,12 @@ public class GenerationParam extends GenerationParamBase {
       }
     }
 
-    if (searchOptions != null) {
-      params.put("search_options", searchOptions);
-    }
-
     if (parallelToolCalls != null) {
       params.put("parallel_tool_calls", parallelToolCalls);
+    }
+
+    if (searchOptions != null) {
+      params.put("search_options", searchOptions);
     }
 
     if (responseFormat != null) {
@@ -238,6 +240,10 @@ public class GenerationParam extends GenerationParamBase {
 
     if (n != null) {
       params.put("n", n);
+    }
+
+    if (translationOptions != null) {
+      params.put("translation_options", translationOptions);
     }
 
     params.putAll(parameters);

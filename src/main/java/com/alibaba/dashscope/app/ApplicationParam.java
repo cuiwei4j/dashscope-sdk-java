@@ -104,7 +104,6 @@ public class ApplicationParam extends HalfDuplexParamBase {
   /** rag options */
   private RagOptions ragOptions;
 
-
   /**
    * mcp server list
    */
@@ -144,6 +143,7 @@ public class ApplicationParam extends HalfDuplexParamBase {
    * enable thinking mode
    */
   private Boolean enableThinking;
+
 
   @Override
   public String getModel() {

@@ -55,7 +55,7 @@ public abstract class FlattenHalfDuplexParamBase extends HalfDuplexParamBase {
   @Override
   public Map<String, String> getHeaders() {
     Map<String, String> res = new HashMap<>();
-    for (Map.Entry<String, Object> entry : headers.entrySet()) {
+    for (Entry<String, Object> entry : headers.entrySet()) {
       String key = entry.getKey();
       String value = entry.getValue().toString();
       res.put(key, value);

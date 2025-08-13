@@ -21,7 +21,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class MultiModalConversationUsage {
-    private static final String modelName = "qwen-vl-chat-v1";
+    private static final String modelName = "qwen-vl-max-latest";
 
     public static void simpleMultiModalConversationCall() throws ApiException, NoApiKeyException, UploadFileException {
         MultiModalConversation conv = new MultiModalConversation();
@@ -36,9 +36,17 @@ public class MultiModalConversationUsage {
                         .content(Arrays.asList(userImage, userText)).build();
         MultiModalConversationParam param = MultiModalConversationParam.builder()
                 .model(MultiModalConversationUsage.modelName).message(systemMessage)
+                .vlHighResolutionImages(true)
+                .vlEnableImageHwOutput(true)
+//                .incrementalOutput(true)
                 .message(userMessage).build();
         MultiModalConversationResult result = conv.call(param);
-        System.out.print(result);
+        System.out.println(result);
+        System.out.print(JsonUtils.toJson(result));
+//        Flowable<MultiModalConversationResult> results = conv.streamCall(param);
+//        results.blockingForEach(result -> {
+//            System.out.println(JsonUtils.toJson(result));
+//        });
     }
 
     public static void MultiRoundConversationCall() throws ApiException, NoApiKeyException, UploadFileException {
@@ -60,6 +68,7 @@ public class MultiModalConversationUsage {
                 .build();
         MultiModalConversationResult result = conv.call(param);
         System.out.println(result);
+        System.out.println(JsonUtils.toJson(result));
         MultiModalMessage resultMessage = result.getOutput().getChoices().get(0).getMessage();
         MultiModalMessageItemText assistentText = new MultiModalMessageItemText(
                 (String) resultMessage.getContent().get(0).get("text"));
@@ -71,7 +80,8 @@ public class MultiModalConversationUsage {
                 .content(Arrays.asList(userText)).build());
         param.setMessages((List) messages);
         result = conv.call(param);
-        System.out.print(result);
+        System.out.println(result);
+        System.out.println(JsonUtils.toJson(result));
     }
 
     public static void textInTextStreamOut() throws ApiException, NoApiKeyException, UploadFileException, IOException {
@@ -274,14 +284,14 @@ public class MultiModalConversationUsage {
 
     public static void main(String[] args) {
         try {
-//            simpleMultiModalConversationCall();
+            simpleMultiModalConversationCall();
 //            MultiRoundConversationCall();
 //            textInAudioStreamOut();
-            textInTextStreamOut();
+//            textInTextStreamOut();
 //            audioInTextAudioStreamOut();
 //            imageInTextAudioStreamOut();
 //            videoInTextAudioStreamOut();
-        } catch (ApiException | NoApiKeyException | UploadFileException | IOException e) {
+        } catch (ApiException | NoApiKeyException | UploadFileException /*| IOException*/ e) {
             System.out.println(e.getMessage());
         }
         System.exit(0);

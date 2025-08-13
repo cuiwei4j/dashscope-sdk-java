@@ -2,11 +2,12 @@ package com.alibaba.dashscope.embeddings;
 
 import lombok.Data;
 
+
 @Data
 public class TextEmbeddingSparseEmbedding {
-    private Integer index;
+  private Integer index;
 
-    private Double value;
+  private Double value;
 
-    private String token;
+  private String token;
 }

@@ -6,16 +6,15 @@ import com.alibaba.dashscope.tools.ToolBase;
 import com.alibaba.dashscope.utils.ApiKeywords;
 import com.alibaba.dashscope.utils.JsonUtils;
 import com.google.gson.JsonObject;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Singular;
 import lombok.experimental.SuperBuilder;
-
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -105,6 +104,7 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
   /** audio output parameters */
   private AudioParameters audio;
 
+  /** ocr options */
   private OcrOptions ocrOptions;
 
   /** text input */
@@ -122,6 +122,12 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
   /** enable parallel tool calls */
   protected Boolean parallelToolCalls;
 
+  /** enable vl_high_resolution_images */
+  protected Boolean vlHighResolutionImages;
+
+  /** enable vl_enable_image_hw_output */
+  protected Boolean vlEnableImageHwOutput;
+
   @Override
   public JsonObject getHttpBody() {
     JsonObject requestObject = new JsonObject();
@@ -138,6 +144,7 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
   public JsonObject getInput() {
     JsonObject jsonObject = new JsonObject();
     jsonObject.add(ApiKeywords.MESSAGES, JsonUtils.toJsonArray(messages));
+
     if (text != null) {
       jsonObject.addProperty(ApiKeywords.TEXT, text);
     }
@@ -145,6 +152,7 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
     if (voice != null) {
       jsonObject.addProperty(ApiKeywords.VOICE, voice.getValue());
     }
+
     return jsonObject;
   }
 
@@ -207,7 +215,7 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
 
     if (toolChoice != null) {
       if (toolChoice instanceof String) {
-        params.put("tool_choice", toolChoice);
+        params.put("tool_choice", (String) toolChoice);
       } else {
         params.put("tool_choice", JsonUtils.toJsonObject(toolChoice));
       }
@@ -215,6 +223,14 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
 
     if (parallelToolCalls != null) {
       params.put("parallel_tool_calls", parallelToolCalls);
+    }
+
+    if (vlHighResolutionImages != null) {
+      params.put("vl_high_resolution_images", vlHighResolutionImages);
+    }
+
+    if (vlEnableImageHwOutput != null) {
+      params.put("vl_enable_image_hw_output", vlEnableImageHwOutput);
     }
 
     params.putAll(parameters);

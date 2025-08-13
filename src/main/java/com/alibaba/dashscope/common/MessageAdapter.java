@@ -107,7 +107,7 @@ public class MessageAdapter extends TypeAdapter<Message> {
   private ToolCallFunction convertToCallFunction(LinkedTreeMap<String, Object> toolCall) {
     ToolCallFunction functionCall = new ToolCallFunction();
     if (toolCall.containsKey("function")) {
-      ToolCallFunction.CallFunction callFunction = functionCall.new CallFunction();
+      CallFunction callFunction = functionCall.new CallFunction();
       LinkedTreeMap<String, Object> fc = (LinkedTreeMap<String, Object>) toolCall.get("function");
       if (fc.containsKey("name")) {
         callFunction.setName(fc.get("name").toString());

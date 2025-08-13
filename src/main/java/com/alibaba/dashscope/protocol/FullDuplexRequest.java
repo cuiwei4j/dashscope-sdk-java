@@ -8,6 +8,7 @@ import com.alibaba.dashscope.utils.JsonUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.reactivex.rxjava3.core.Flowable;
+
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.UUID;
@@ -55,6 +56,9 @@ public class FullDuplexRequest {
     request.add(ApiKeywords.INPUT, new JsonObject());
     if (param.getParameters() != null) {
       request.add(ApiKeywords.PARAMETERS, JsonUtils.parametersToJsonObject(param.getParameters()));
+    }
+    if (param.getInputs() != null) {
+      request.add(ApiKeywords.INPUT, JsonUtils.parametersToJsonObject(param.getInputs()));
     }
     if (param.getResources() != null) {
       request.add(ApiKeywords.RESOURCES, (JsonElement) param.getResources());
@@ -168,7 +172,11 @@ public class FullDuplexRequest {
     JsonObject wsMessage = new JsonObject();
     wsMessage.add(ApiKeywords.HEADER, header);
     JsonObject payload = new JsonObject();
-    payload.add("input", new JsonObject());
+    JsonObject input = new JsonObject();
+    if (serviceOption.getTask().equals("multimodal-generation")) {
+      input.addProperty("directive","Stop");
+    }
+    payload.add("input", input);
     wsMessage.add(ApiKeywords.PAYLOAD, payload);
     return wsMessage;
   }

@@ -2,8 +2,9 @@
 
 package com.alibaba.dashscope.base;
 
-import io.reactivex.rxjava3.core.Flowable;
 import java.util.Map;
+
+import io.reactivex.rxjava3.core.Flowable;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -68,6 +69,15 @@ public abstract class FullDuplexParamBase {
    * @return The stream input data.
    */
   public abstract Flowable<Object> getStreamingData();
+
+  /**
+   * Custom payload.inputs
+   *
+   * @return The key/value parameters
+   */
+  public Map<String, Object> getInputs() {
+    return null;
+  }
 
   public void setModel(String model) {
     this.model = model;

@@ -54,7 +54,7 @@ public class Run extends FlattenResultBase {
    * <p>(Required)
    */
   @SerializedName("status")
-  private Run.Status status;
+  private Status status;
 
   @SerializedName("required_action")
   private RequiredAction requiredAction = null;
@@ -122,6 +122,15 @@ public class Run extends FlattenResultBase {
   @SerializedName("temperature")
   private Float temperature = null;
 
+  @SerializedName("top_p")
+  private Float topP;
+
+  @SerializedName("top_k")
+  private Integer topK;
+
+  @SerializedName("max_tokens")
+  private Integer maxTokens;
+
   @SerializedName("max_prompt_tokens")
   private Integer maxPromptTokens;
 
@@ -157,10 +166,10 @@ public class Run extends FlattenResultBase {
     @SerializedName("expired")
     EXPIRED("expired");
     private final String value;
-    private static final Map<String, Run.Status> CONSTANTS = new HashMap<String, Run.Status>();
+    private static final Map<String, Status> CONSTANTS = new HashMap<String, Status>();
 
     static {
-      for (Run.Status c : values()) {
+      for (Status c : values()) {
         CONSTANTS.put(c.value, c);
       }
     }
@@ -178,8 +187,8 @@ public class Run extends FlattenResultBase {
       return this.value;
     }
 
-    public static Run.Status fromValue(String value) {
-      Run.Status constant = CONSTANTS.get(value);
+    public static Status fromValue(String value) {
+      Status constant = CONSTANTS.get(value);
       if (constant == null) {
         throw new IllegalArgumentException(value);
       } else {

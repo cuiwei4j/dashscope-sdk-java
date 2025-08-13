@@ -1,7 +1,5 @@
 package com.alibaba.dashscope.aigc.multimodalconversation;
 
-
-
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import lombok.Data;
@@ -19,15 +17,15 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 public class AudioResult implements Serializable {
-    @SerializedName("data")
-    private String data;
+  @SerializedName("data")
+  private String data;
 
-    @SerializedName("id")
-    private String id;
+  @SerializedName("id")
+  private String id;
 
-    @SerializedName("url")
-    private String url;
+  @SerializedName("url")
+  private String url;
 
-    @SerializedName("expires_at")
-    private Long expiresAt;
+  @SerializedName("expires_at")
+  private Long expiresAt;
 }

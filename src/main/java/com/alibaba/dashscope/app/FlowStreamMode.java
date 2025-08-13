@@ -1,9 +1,6 @@
-
+// Copyright (c) Alibaba, Inc. and its affiliates.
 package com.alibaba.dashscope.app;
 
-import lombok.Getter;
-
-@Getter
 public enum FlowStreamMode {
 
     /**
@@ -14,7 +11,12 @@ public enum FlowStreamMode {
     /**
      * Use the same output pattern as the agent application.
      */
-    AGENT_FORMAT("agent_format");
+    AGENT_FORMAT("agent_format"),
+
+    /**
+     * Use the output node and end node to perform the output.
+     */
+    MESSAGE_FORMAT("message_format");
 
     private final String value;
 
@@ -22,4 +24,7 @@ public enum FlowStreamMode {
         this.value = value;
     }
 
+    public String getValue() {
+        return value;
+    }
 }

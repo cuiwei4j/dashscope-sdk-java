@@ -7,13 +7,14 @@ import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.utils.ApiKeywords;
 import com.alibaba.dashscope.utils.JsonUtils;
 import com.google.gson.JsonObject;
+import lombok.EqualsAndHashCode;
+import lombok.Singular;
+import lombok.experimental.SuperBuilder;
+
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.EqualsAndHashCode;
-import lombok.Singular;
-import lombok.experimental.SuperBuilder;
 
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
@@ -25,7 +26,7 @@ public class TextEmbeddingParam extends HalfDuplexServiceParam {
 
     private final String value;
 
-    TextType(String value) {
+    private TextType(String value) {
       this.value = value;
     }
 
@@ -37,11 +38,12 @@ public class TextEmbeddingParam extends HalfDuplexServiceParam {
   public enum OutputType {
     DENSE("dense"),
     SPARSE("sparse"),
-    DENSE_AND_SPARSE("dense&sparse");
+    DENSE_AND_SPARSE("dense&sparse")
+    ;
 
     private final String value;
 
-    OutputType(String value) {
+    private OutputType(String value) {
       this.value = value;
     }
 
@@ -49,7 +51,7 @@ public class TextEmbeddingParam extends HalfDuplexServiceParam {
       return value;
     }
   }
-    
+
   @Singular private List<String> texts;
 
   /**
