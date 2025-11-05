@@ -22,6 +22,7 @@ public final class Tokenization {
 
   public static class Models {
     public static final String QWEN_TURBO = "qwen-turbo";
+    public static final String QWEN_FLASH = "qwen-flash";
     public static final String QWEN_PLUS = "qwen-plus";
     public static final String QWEN_7B_CHAT = "qwen-7b-chat";
     public static final String QWEN_14B_CHAT = "qwen-14b-chat";

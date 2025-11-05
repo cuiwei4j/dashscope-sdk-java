@@ -1,10 +1,12 @@
 package com.alibaba.dashscope.aigc.multimodalconversation;
 
 import com.alibaba.dashscope.base.HalfDuplexServiceParam;
+import com.alibaba.dashscope.common.ResponseFormat;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.tools.ToolBase;
 import com.alibaba.dashscope.utils.ApiKeywords;
 import com.alibaba.dashscope.utils.JsonUtils;
+import com.alibaba.dashscope.utils.ParamUtils;
 import com.google.gson.JsonObject;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -96,7 +98,7 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
    * apple
    * </pre>
    */
-  @Builder.Default private Boolean incrementalOutput = false;
+  @Builder.Default private Boolean incrementalOutput;
 
   /** Output format of the model including "text" and "audio". Default value: ["text"] */
   private List<String> modalities;
@@ -128,6 +130,33 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
   /** enable vl_enable_image_hw_output */
   protected Boolean vlEnableImageHwOutput;
 
+  /** response format */
+  private ResponseFormat responseFormat;
+
+  /** negative prompt */
+  private String negativePrompt;
+
+  /** prompt extend */
+  private Boolean promptExtend;
+
+  /** watermark */
+  private Boolean watermark;
+
+  /** picture size */
+  private String size;
+
+  /** number of images */
+  private Integer n;
+
+  /** language type for tts */
+  private String languageType;
+
+  /** enable thinking */
+  private Boolean enableThinking;
+
+  /** thinking budget */
+  private Integer thinkingBudget;
+
   @Override
   public JsonObject getHttpBody() {
     JsonObject requestObject = new JsonObject();
@@ -151,6 +180,10 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
 
     if (voice != null) {
       jsonObject.addProperty(ApiKeywords.VOICE, voice.getValue());
+    }
+
+    if (languageType != null) {
+      jsonObject.addProperty(ApiKeywords.LANGUAGE_TYPE, languageType);
     }
 
     return jsonObject;
@@ -193,8 +226,18 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
       params.put(ApiKeywords.PRESENCE_PENALTY, presencePenalty);
     }
 
-    if (incrementalOutput) {
-      params.put(ApiKeywords.INCREMENTAL_OUTPUT, incrementalOutput);
+    // Apply different logic based on model version
+    if (ParamUtils.isQwenVersionThreeOrHigher(getModel())) {
+      if (incrementalOutput != null) {
+        params.put(ApiKeywords.INCREMENTAL_OUTPUT, incrementalOutput);
+      }
+    } else {
+      if (incrementalOutput == null) {
+        incrementalOutput = false;
+      }
+      if (incrementalOutput) {
+        params.put(ApiKeywords.INCREMENTAL_OUTPUT, incrementalOutput);
+      }
     }
 
     if (modalities != null) {
@@ -231,6 +274,38 @@ public class MultiModalConversationParam extends HalfDuplexServiceParam {
 
     if (vlEnableImageHwOutput != null) {
       params.put("vl_enable_image_hw_output", vlEnableImageHwOutput);
+    }
+
+    if (responseFormat != null) {
+      params.put("response_format", responseFormat);
+    }
+
+    if (negativePrompt != null) {
+      params.put("negative_prompt", negativePrompt);
+    }
+
+    if (promptExtend != null) {
+      params.put("prompt_extend", promptExtend);
+    }
+
+    if (watermark != null) {
+      params.put("watermark", watermark);
+    }
+
+    if (size != null) {
+      params.put("size", size);
+    }
+
+    if (n != null) {
+      params.put("n", n);
+    }
+
+    if (enableThinking != null) {
+      params.put("enable_thinking", enableThinking);
+    }
+
+    if (thinkingBudget != null) {
+      params.put("thinking_budget", thinkingBudget);
     }
 
     params.putAll(parameters);

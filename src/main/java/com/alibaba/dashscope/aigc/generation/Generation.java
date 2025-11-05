@@ -30,6 +30,7 @@ public final class Generation {
     @Deprecated public static final String QWEN_V1 = "qwen-v1";
 
     public static final String QWEN_TURBO = "qwen-turbo";
+    public static final String QWEN_FLASH = "qwen-flash";
 
     public static final String BAILIAN_V1 = "bailian-v1";
     public static final String DOLLY_12B_V2 = "dolly-12b-v2";

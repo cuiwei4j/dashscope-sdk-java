@@ -36,6 +36,8 @@ public interface AppKeywords {
 
   String IMAGES = "image_list";
 
+  String FILE_LIST = "file_list";
+
   String MCP_SERVERS = "mcp_servers";
 
   String ENABLE_WEB_SEARCH = "enable_web_search";
@@ -51,4 +53,6 @@ public interface AppKeywords {
   String FLOW_STREAM_MODE = "flow_stream_mode";
 
   String ENABLE_THINKING = "enable_thinking";
+
+  String CIP_SERVICE_CODES = "cip_service_codes";
 }

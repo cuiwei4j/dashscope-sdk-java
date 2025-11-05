@@ -5,6 +5,7 @@ package com.alibaba.dashscope.protocol;
 import com.alibaba.dashscope.Version;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.utils.ApiKey;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public final class DashScopeHeaders {
       String apiKey, boolean isSecurityCheck, String workspace, Map<String, String> customHeaders)
       throws NoApiKeyException {
     Map<String, String> headers = new HashMap<>();
-    headers.put("Authorization", "bearer " + ApiKey.getApiKey(apiKey));
+    headers.put("Authorization", "Bearer " + ApiKey.getApiKey(apiKey));
     headers.put("user-agent", userAgent());
     if (workspace != null && !workspace.isEmpty()) {
       headers.put("X-DashScope-WorkSpace", workspace);

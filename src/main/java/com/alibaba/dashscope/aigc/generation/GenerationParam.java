@@ -2,26 +2,31 @@
 
 package com.alibaba.dashscope.aigc.generation;
 
+import static com.alibaba.dashscope.utils.ApiKeywords.HISTORY;
+import static com.alibaba.dashscope.utils.ApiKeywords.MAX_TOKENS;
+import static com.alibaba.dashscope.utils.ApiKeywords.MESSAGES;
+import static com.alibaba.dashscope.utils.ApiKeywords.PROMPT;
+import static com.alibaba.dashscope.utils.ApiKeywords.REPETITION_PENALTY;
+import static com.alibaba.dashscope.utils.ApiKeywords.STOP;
+
 import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.common.ResponseFormat;
 import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.tools.ToolBase;
 import com.alibaba.dashscope.utils.JsonUtils;
+import com.alibaba.dashscope.utils.ParamUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Singular;
 import lombok.experimental.SuperBuilder;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static com.alibaba.dashscope.utils.ApiKeywords.*;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -88,7 +93,7 @@ public class GenerationParam extends GenerationParamBase {
    * apple
    * </pre>
    */
-  @Default private Boolean incrementalOutput = false;
+  @Default private Boolean incrementalOutput;
 
   /** Maximum tokens to generate. */
   private Integer maxTokens;
@@ -185,9 +190,20 @@ public class GenerationParam extends GenerationParamBase {
     if (temperature != null) {
       params.put("temperature", temperature);
     }
-    if (incrementalOutput) {
-      params.put("incremental_output", incrementalOutput);
+    // Apply different logic based on model version
+     if (ParamUtils.isQwenVersionThreeOrHigher(getModel())) {
+      if (incrementalOutput != null) {
+        params.put("incremental_output", incrementalOutput);
+      }
+    } else {
+      if (incrementalOutput == null) {
+        incrementalOutput = false;
+      }
+      if (incrementalOutput) {
+        params.put("incremental_output", incrementalOutput);
+      }
     }
+
     if (repetitionPenalty != null) {
       params.put(REPETITION_PENALTY, repetitionPenalty);
     }

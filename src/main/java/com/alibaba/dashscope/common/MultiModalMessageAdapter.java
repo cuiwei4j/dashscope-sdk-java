@@ -37,8 +37,12 @@ public class MultiModalMessageAdapter extends TypeAdapter<MultiModalMessage> {
       out.value((String) value);
     } else if (value instanceof Integer) {
       out.value((Integer) value);
+    } else if (value instanceof Long) {
+      out.value((Long) value);
     } else if (value instanceof Double) {
       out.value((Double) value);
+    } else if (value instanceof Float) {
+      out.value((Float) value);
     } else if (value instanceof Boolean) {
       out.value((Boolean) value);
     } else if (value instanceof Character) {
@@ -109,6 +113,15 @@ public class MultiModalMessageAdapter extends TypeAdapter<MultiModalMessage> {
     }
     out.endArray();
 
+    if (value.getAnnotations() != null) {
+      out.name(ApiKeywords.ANNOTATIONS);
+      out.beginArray();
+      for (Map<String, Object> item : value.getAnnotations()) {
+        writeMapObject(out, item);
+      }
+      out.endArray();
+    }
+
     if (value.getReasoningContent() != null) {
       out.name(ApiKeywords.REASONING_CONTENT);
       out.value(value.getReasoningContent());
@@ -155,6 +168,11 @@ public class MultiModalMessageAdapter extends TypeAdapter<MultiModalMessage> {
         msg.setContent((List<Map<String, Object>>) content);
       }
       objectMap.remove(ApiKeywords.CONTENT);
+    }
+
+    if (objectMap.containsKey(ApiKeywords.ANNOTATIONS)) {
+      msg.setAnnotations((List<Map<String, Object>>) objectMap.get(ApiKeywords.ANNOTATIONS));
+      objectMap.remove(ApiKeywords.ANNOTATIONS);
     }
 
     if (objectMap.containsKey(ApiKeywords.REASONING_CONTENT)) {

@@ -9,6 +9,8 @@ public class ApiKeywords {
 
   public static final String CODE = "code";
 
+  public static final String STATUS_CODE = "status_code";
+
   public static final String DATA = "data";
 
   public static final String MESSAGE = "message";
@@ -97,6 +99,8 @@ public class ApiKeywords {
 
   public static final String ERROR_NAME = "error_name";
 
+  public static final String ERROR_CODE = "error_code";
+
   public static final String ERROR_MESSAGE = "error_message";
 
   public static final String OUTPUT = "output";
@@ -112,6 +116,8 @@ public class ApiKeywords {
   public static final String CONTENT_TYPE_TEXT = "text";
 
   public static final String CONTENT_TYPE_IMAGE_URL = "image_url";
+
+  public static final String CONTENT_TYPE_CACHE_CONTROL = "cache_control";
 
   public static final String RESOURCE_ID = "resource_id";
 
@@ -148,6 +154,8 @@ public class ApiKeywords {
 
   public static final String IMG_URL = "img_url";
 
+  public static final String AUDIO_URL = "audio_url";
+
   public static final String REF_IMG = "ref_img";
 
   public static final String MODALITIES = "modalities";
@@ -162,15 +170,25 @@ public class ApiKeywords {
 
   public static final String MASK_IMAGE_URL = "mask_image_url";
 
-  public static final String FIRST_FRAME_URL = "first_frame_url";
+   public static final String FIRST_FRAME_URL = "first_frame_url";
 
-  public static final String LAST_FRAME_URL = "last_frame_url";
+   public static final String LAST_FRAME_URL = "last_frame_url";
 
-  public static final String HEAD_FRAME = "head_frame";
+   public static final String HEAD_FRAME = "head_frame";
 
-  public static final String TAIL_FRAME = "tail_frame";
+   public static final String TAIL_FRAME = "tail_frame";
 
-  public static final String RESOLUTION = "resolution";
+   public static final String RESOLUTION = "resolution";
 
-  public static final String WITH_AUDIO = "with_audio";
+   public static final String WITH_AUDIO = "with_audio";
+
+   public static final String PROMPT_EXTEND = "prompt_extend";
+
+   public static final String WATERMARK = "watermark";
+
+  public static final String ANNOTATIONS = "annotations";
+
+  public static final String LANGUAGE_TYPE = "language_type";
+
+  public static final String IMAGES = "images";
 }

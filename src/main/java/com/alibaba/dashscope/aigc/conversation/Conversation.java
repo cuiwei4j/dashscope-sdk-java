@@ -22,6 +22,7 @@ public final class Conversation {
     @Deprecated public static final String QWEN_V1 = "qwen-v1";
 
     public static final String QWEN_TURBO = "qwen-turbo";
+    public static final String QWEN_FLASH = "qwen-flash";
 
     /** @deprecated use QWEN_PLUS instead */
     @Deprecated public static final String QWEN_PLUG_V1 = "qwen-plus-v1";

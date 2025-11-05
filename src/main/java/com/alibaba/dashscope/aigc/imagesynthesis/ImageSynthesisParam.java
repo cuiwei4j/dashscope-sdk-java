@@ -13,7 +13,9 @@ import com.alibaba.dashscope.utils.JsonUtils;
 import com.alibaba.dashscope.utils.PreprocessInputImage;
 import com.google.gson.JsonObject;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
@@ -35,6 +37,8 @@ public class ImageSynthesisParam extends HalfDuplexServiceParam {
   private String negativePrompt;
   private String refImage;
   private String sketchImageUrl;
+  private List<String> images;
+
   /** The specific functions to be achieved , see class ImageEditFunction */
   @Builder.Default private String function = null;
 
@@ -44,9 +48,13 @@ public class ImageSynthesisParam extends HalfDuplexServiceParam {
   /** Provide the URL address of the image of the marked area by the user.
    * It should be consistent with the image resolution of the base_image_url. */
   @Builder.Default private String maskImageUrl = null;
-  
+
   /** The extra parameters. */
   @GsonExclude @Singular protected Map<String, Object> extraInputs;
+
+  @Builder.Default private Boolean promptExtend = null;
+
+  @Builder.Default private Boolean watermark = null;
 
   @Override
   public JsonObject getInput() {
@@ -72,6 +80,9 @@ public class ImageSynthesisParam extends HalfDuplexServiceParam {
 
     if (maskImageUrl != null && !maskImageUrl.isEmpty()) {
       jsonObject.addProperty(MASK_IMAGE_URL, maskImageUrl);
+    }
+    if (images != null && !images.isEmpty()) {
+      jsonObject.add(IMAGES, JsonUtils.toJsonArray(images));
     }
     if (extraInputs != null && !extraInputs.isEmpty()) {
       JsonObject extraInputsJsonObject = JsonUtils.parametersToJsonObject(extraInputs);
@@ -103,6 +114,12 @@ public class ImageSynthesisParam extends HalfDuplexServiceParam {
     }
     if (style != null) {
       params.put(STYLE, style);
+    }
+    if (promptExtend != null) {
+      params.put(PROMPT_EXTEND, promptExtend);
+    }
+    if (watermark != null) {
+      params.put(WATERMARK, watermark);
     }
 
     params.putAll(super.getParameters());
@@ -136,6 +153,14 @@ public class ImageSynthesisParam extends HalfDuplexServiceParam {
     inputChecks.put(SKETCH_IMAGE_URL, this.sketchImageUrl);
     inputChecks.put(BASE_IMAGE_URL, this.baseImageUrl);
     inputChecks.put(MASK_IMAGE_URL, this.maskImageUrl);
+    int imagesSize = 0;
+    if (this.images != null) {
+      imagesSize = this.images.size();
+      for (int i = 0; i < imagesSize; i++) {
+        inputChecks.put(IMAGES + "[" + i + "]", this.images.get(i));
+      }
+    }
+
     boolean isUpload = PreprocessInputImage.checkAndUploadImage(getModel(), inputChecks, getApiKey());
 
     if (isUpload) {
@@ -145,6 +170,13 @@ public class ImageSynthesisParam extends HalfDuplexServiceParam {
       this.sketchImageUrl = inputChecks.get(SKETCH_IMAGE_URL);
       this.baseImageUrl = inputChecks.get(BASE_IMAGE_URL);
       this.maskImageUrl = inputChecks.get(MASK_IMAGE_URL);
+      if (imagesSize > 0) {
+        List<String> newImages = new ArrayList<>();
+        for (int i = 0; i < imagesSize; i++) {
+          newImages.add(inputChecks.get(IMAGES + "[" + i + "]"));
+        }
+        this.images = newImages;
+      }
     }
   }
 }
